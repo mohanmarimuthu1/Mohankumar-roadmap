@@ -143,8 +143,10 @@ create table if not exists public.resources (
 );
 
 -- ---------------------------------------------------------------- live feeds
--- Shared across users (populated by the refresh edge function), so no user_id.
+-- Shared across users (populated by the refresh edge function and the
+-- worker/ background process), so no user_id.
 -- category: 'news' | 'models' | 'papers' | 'repos' | 'hn'
+-- metadata: per-category extras -- download counts, stars, points, authors.
 create table if not exists public.news_articles (
   id           uuid primary key default gen_random_uuid(),
   category     text not null check (category in ('news', 'models', 'papers', 'repos', 'hn')),
@@ -152,10 +154,16 @@ create table if not exists public.news_articles (
   title        text not null,
   url          text not null,
   summary      text default '',
+  metadata     jsonb not null default '{}'::jsonb,
   published_at timestamptz not null default now(),
   fetched_at   timestamptz not null default now(),
   unique (category, url)
 );
+
+-- For projects created before metadata existed: create table if not exists
+-- leaves an older table untouched, so add the column explicitly.
+alter table public.news_articles
+  add column if not exists metadata jsonb not null default '{}'::jsonb;
 
 -- ------------------------------------------------------------------- indexes
 create index if not exists task_groups_phase_idx   on public.task_groups (phase_id, order_idx);
@@ -173,6 +181,7 @@ create index if not exists neu_sections_user_idx   on public.neu_sections (user_
 create index if not exists neu_items_section_idx   on public.neu_items (section_id, order_idx);
 create index if not exists resources_user_idx      on public.resources (user_id, category, order_idx);
 create index if not exists news_cat_pub_idx        on public.news_articles (category, published_at desc);
+create index if not exists news_published_idx      on public.news_articles (published_at desc);
 
 -- =============================================================================
 -- Row Level Security
@@ -219,3 +228,42 @@ begin
     alter publication supabase_realtime add table public.news_articles;
   end if;
 end $$;
+
+-- =============================================================================
+-- Grants + schema cache
+-- PostgREST only exposes tables the API roles hold privileges on, and it serves
+-- from a cached introspection. Without these, a table can exist in Postgres yet
+-- still 404 as PGRST205 ("could not find the table in the schema cache").
+-- Supabase's default privileges normally cover this; stating it explicitly makes
+-- the script correct regardless of which role runs it.
+-- =============================================================================
+grant usage on schema public to anon, authenticated, service_role;
+grant all on all tables    in schema public to anon, authenticated, service_role;
+grant all on all sequences in schema public to anon, authenticated, service_role;
+
+-- =============================================================================
+-- Verification
+-- A partial apply is the failure mode that hurts: the tables that did land look
+-- healthy, the app half-works, and nothing says why. Fail loudly instead.
+-- =============================================================================
+do $$
+declare
+  missing text[];
+begin
+  select array_agg(t order by t) into missing
+  from unnest(array[
+    'user_settings', 'phases', 'task_groups', 'tasks', 'habits', 'habit_log',
+    'rules', 'gym_days', 'exercises', 'gym_logs', 'neu_sections', 'neu_items',
+    'resources', 'news_articles'
+  ]) as t
+  where to_regclass('public.' || t) is null;
+
+  if missing is not null then
+    raise exception 'schema incomplete -- % table(s) missing: %',
+      array_length(missing, 1), array_to_string(missing, ', ');
+  end if;
+
+  raise notice 'schema ok: all 14 tables present';
+end $$;
+
+notify pgrst, 'reload schema';

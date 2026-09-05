@@ -68,7 +68,16 @@ src/
 │   ├── Toast.jsx        toast provider
 │   └── ui.jsx           cards, checkbox, modals, skeletons, buttons
 └── pages/               Today, Roadmap, Live, Gym, Habits, NEU, Resources, Settings
+
+worker/                  standalone Node service that fills the Live tab
+├── index.js             source registry + cron (fetch every 6h, prune daily)
+├── db.js                supabase writes (service role key)
+└── fetchers/            rss, huggingface, arxiv, github, hn
 ```
+
+The worker is deployed separately from the app — see
+[worker/README.md](worker/README.md) for setup and the Oracle Cloud + PM2
+instructions.
 
 ## Data model notes
 
