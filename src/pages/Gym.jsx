@@ -79,7 +79,7 @@ export default function Gym() {
                     items={day.exercises}
                     table="exercises"
                     labelField="name"
-                    newRow={{ day_id: day.id }}
+                    newRow={{ day_id: day.id, sets: 3, reps: '8-12', rest_seconds: 60 }}
                     onMutate={gym.refresh}
                     addLabel="Add exercise"
                     itemClassName="px-2"
@@ -152,7 +152,7 @@ function ExerciseRow({ exercise, gym, onOpen }) {
 }
 
 function summariseSets(sets) {
-  const weights = sets.map((s) => s.weight).filter((w) => w !== null && w !== undefined)
+  const weights = sets.map((s) => s.weight_kg).filter((w) => w !== null && w !== undefined)
   if (!weights.length) return `${sets.length} sets`
   const top = Math.max(...weights)
   return `${top}kg × ${sets.length}`
@@ -171,14 +171,14 @@ function LogModal({ exercise, gym, onClose }) {
     const count = Math.max(exercise.sets, logged.length)
     setRows(
       Array.from({ length: count }, (_, i) => {
-        const existing = logged.find((l) => l.set_idx === i + 1)
-        const previous = last?.sets.find((l) => l.set_idx === i + 1)
+        const existing = logged.find((l) => l.set_number === i + 1)
+        const previous = last?.sets.find((l) => l.set_number === i + 1)
         return {
-          setIdx: i + 1,
-          weight: existing?.weight ?? '',
-          reps: existing?.reps ?? '',
-          placeholderWeight: previous?.weight ?? '',
-          placeholderReps: previous?.reps ?? '',
+          setNumber: i + 1,
+          weightKg: existing?.weight_kg ?? '',
+          repsCompleted: existing?.reps_completed ?? '',
+          placeholderWeight: previous?.weight_kg ?? '',
+          placeholderReps: previous?.reps_completed ?? '',
           saved: Boolean(existing),
         }
       })
@@ -186,9 +186,9 @@ function LogModal({ exercise, gym, onClose }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [exercise])
 
-  function update(setIdx, field, value) {
+  function update(setNumber, field, value) {
     setRows((current) =>
-      current.map((r) => (r.setIdx === setIdx ? { ...r, [field]: value } : r))
+      current.map((r) => (r.setNumber === setNumber ? { ...r, [field]: value } : r))
     )
   }
 
@@ -196,16 +196,16 @@ function LogModal({ exercise, gym, onClose }) {
     setBusy(true)
     try {
       for (const row of rows) {
-        const filled = row.weight !== '' || row.reps !== ''
+        const filled = row.weightKg !== '' || row.repsCompleted !== ''
         if (filled) {
           await gym.logSet({
             exerciseId: exercise.id,
-            setIdx: row.setIdx,
-            weight: row.weight,
-            reps: row.reps,
+            setNumber: row.setNumber,
+            weightKg: row.weightKg,
+            repsCompleted: row.repsCompleted,
           })
         } else if (row.saved) {
-          await gym.clearSet({ exerciseId: exercise.id, setIdx: row.setIdx })
+          await gym.clearSet({ exerciseId: exercise.id, setNumber: row.setNumber })
         }
       }
       toast('Session logged')
@@ -251,23 +251,23 @@ function LogModal({ exercise, gym, onClose }) {
         </div>
 
         {rows.map((row) => (
-          <div key={row.setIdx} className="grid grid-cols-[2rem_1fr_1fr] items-center gap-2">
-            <span className="text-center font-display text-xs text-ink-400">{row.setIdx}</span>
+          <div key={row.setNumber} className="grid grid-cols-[2rem_1fr_1fr] items-center gap-2">
+            <span className="text-center font-display text-xs text-ink-400">{row.setNumber}</span>
             <input
               type="number"
               inputMode="decimal"
               step="0.5"
-              value={row.weight}
+              value={row.weightKg}
               placeholder={row.placeholderWeight === '' ? '—' : String(row.placeholderWeight)}
-              onChange={(e) => update(row.setIdx, 'weight', e.target.value)}
+              onChange={(e) => update(row.setNumber, 'weightKg', e.target.value)}
               className="w-full rounded-lg border border-ink-500 bg-ink-900 px-3 py-2 text-sm text-ink-100 placeholder:text-ink-600 focus:border-accent focus:outline-none"
             />
             <input
               type="number"
               inputMode="numeric"
-              value={row.reps}
+              value={row.repsCompleted}
               placeholder={row.placeholderReps === '' ? '—' : String(row.placeholderReps)}
-              onChange={(e) => update(row.setIdx, 'reps', e.target.value)}
+              onChange={(e) => update(row.setNumber, 'repsCompleted', e.target.value)}
               className="w-full rounded-lg border border-ink-500 bg-ink-900 px-3 py-2 text-sm text-ink-100 placeholder:text-ink-600 focus:border-accent focus:outline-none"
             />
           </div>

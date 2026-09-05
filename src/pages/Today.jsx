@@ -114,7 +114,7 @@ export default function Today() {
                 <Checkbox
                   checked={habits.isDone(habit)}
                   onChange={() => onToggleHabit(habit)}
-                  label={habit.name}
+                  label={habit.label}
                 />
               </div>
             ))}
@@ -143,7 +143,7 @@ export default function Today() {
             {news.data.map((item) => (
               <a
                 key={item.id}
-                href={item.url}
+                href={item.link}
                 target="_blank"
                 rel="noreferrer noopener"
                 className="flex items-start gap-3 px-4 py-3 transition-colors hover:bg-ink-700/50"
@@ -151,7 +151,7 @@ export default function Today() {
                 <div className="min-w-0 flex-1">
                   <p className="line-clamp-2 text-sm leading-snug text-ink-100">{item.title}</p>
                   <p className="mt-1 text-xs text-ink-400">
-                    {item.source || item.category} · {formatRelative(item.published_at)}
+                    {item.source || item.category} · {formatRelative(item.published)}
                   </p>
                 </div>
                 <ArrowUpRight size={14} className="mt-0.5 shrink-0 text-ink-400" />
@@ -194,7 +194,7 @@ export default function Today() {
                 <Checkbox
                   checked={habits.isDone(habit)}
                   onChange={() => onToggleHabit(habit)}
-                  label={habit.name}
+                  label={habit.label}
                 />
               </div>
             ))}

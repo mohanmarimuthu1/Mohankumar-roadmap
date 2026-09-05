@@ -75,6 +75,7 @@ export default function Roadmap() {
           items={phases}
           table="phases"
           labelField="name"
+          newRow={{ code: String(phases.length).padStart(2, '0') }}
           onMutate={refresh}
           addLabel="Add phase"
           deleteMessage={(phase) =>
@@ -144,7 +145,7 @@ export default function Roadmap() {
                         <EditableList
                           items={group.tasks}
                           table="tasks"
-                          labelField="title"
+                          labelField="label"
                           newRow={{ group_id: group.id }}
                           onMutate={refresh}
                           addLabel="Add task"
@@ -154,12 +155,12 @@ export default function Roadmap() {
                               <Checkbox
                                 checked={task.done}
                                 onChange={() => onToggleTask(task)}
-                                label={task.title}
+                                label={task.label}
                                 sublabel={task.notes ? task.notes.split('\n')[0] : null}
                               />
                               <button
                                 onClick={() => setNoteTask(task)}
-                                aria-label={`Notes for ${task.title}`}
+                                aria-label={`Notes for ${task.label}`}
                                 className={[
                                   'mt-0.5 shrink-0 rounded-lg p-1.5 transition-colors hover:bg-ink-700',
                                   task.notes ? 'text-accent' : 'text-ink-500 hover:text-ink-200',
@@ -216,7 +217,7 @@ function NotesModal({ task, onClose, onSave }) {
     <Modal
       open={Boolean(task)}
       onClose={onClose}
-      title={task?.title ?? ''}
+      title={task?.label ?? ''}
       footer={
         <>
           <Button onClick={onClose} disabled={busy}>

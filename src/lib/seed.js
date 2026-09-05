@@ -67,18 +67,19 @@ export async function seedUser(userId, data = seedData) {
   ;(data.phases ?? []).forEach((phase) => {
     ;(phase.groups ?? []).forEach((group) => {
       const groupId = groups[cursor++].id
-      ;(group.tasks ?? []).forEach((title, taskIdx) => {
-        taskRows.push(own({ group_id: groupId, title, order_idx: taskIdx }))
+      ;(group.tasks ?? []).forEach((label, taskIdx) => {
+        taskRows.push(own({ group_id: groupId, label, order_idx: taskIdx }))
       })
     })
   })
   await insertRows('tasks', taskRows)
 
   // ----------------------------------------------------------------- habits
+  // habits.type carries the cadence: 'daily' | 'weekly' | 'monthly'.
   const habitRows = []
   for (const cadence of ['daily', 'weekly', 'monthly']) {
-    ;(data.habits?.[cadence] ?? []).forEach((name, i) => {
-      habitRows.push(own({ name, cadence, order_idx: i }))
+    ;(data.habits?.[cadence] ?? []).forEach((label, i) => {
+      habitRows.push(own({ label, type: cadence, order_idx: i }))
     })
   }
   await insertRows('habits', habitRows)

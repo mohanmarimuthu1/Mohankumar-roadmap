@@ -53,8 +53,8 @@ export default function Habits() {
                 <EditableList
                   items={list}
                   table="habits"
-                  labelField="name"
-                  newRow={{ cadence: key }}
+                  labelField="label"
+                  newRow={{ type: key }}
                   onMutate={habits.refresh}
                   addLabel={`Add ${title.toLowerCase()} habit`}
                   itemClassName="px-2"
@@ -63,7 +63,7 @@ export default function Habits() {
                       <Checkbox
                         checked={habits.isDone(habit)}
                         onChange={() => onToggle(habit)}
-                        label={habit.name}
+                        label={habit.label}
                       />
                     </div>
                   )}

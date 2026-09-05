@@ -5,9 +5,10 @@ import { wipeUserData } from './seed'
  * Export / import of everything a user owns.
  *
  * Rows are exported verbatim (ids included) so that completion state, notes and
- * gym history survive a round trip. On import the ids are regenerated and every
- * foreign key rewritten through the mapping, which keeps the file portable
- * between accounts.
+ * gym history survive a round trip. Every id column in the database is an
+ * auto-generated bigint, so on import the ids are dropped and reassigned by
+ * Postgres; foreign keys are rewritten through the resulting mapping, which
+ * keeps the file portable between accounts.
  */
 
 export const BACKUP_VERSION = 1
@@ -58,16 +59,6 @@ export function downloadJson(payload, filename) {
   URL.revokeObjectURL(url)
 }
 
-function newId() {
-  if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID()
-  // Fallback for older browsers / insecure origins.
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-    const r = (Math.random() * 16) | 0
-    const v = c === 'x' ? r : (r & 0x3) | 0x8
-    return v.toString(16)
-  })
-}
-
 /** Replaces all of a user's data with the contents of a backup file. */
 export async function importAll(userId, payload) {
   if (!payload || typeof payload !== 'object' || !payload.tables) {
@@ -88,17 +79,15 @@ export async function importAll(userId, payload) {
       continue
     }
 
-    const localMap = new Map()
     const prepared = rows.map((row) => {
-      const id = newId()
-      localMap.set(row.id, id)
-
-      const next = { ...row, id, user_id: userId }
+      // `id` is a generated identity column -- let Postgres assign a fresh one.
+      const next = { ...row, user_id: userId }
+      delete next.id
       delete next.created_at
 
       for (const [field, parentTable] of Object.entries(parents)) {
         const mapped = idMap.get(parentTable)?.get(row[field])
-        if (!mapped) {
+        if (mapped === undefined) {
           throw new Error(`Backup is inconsistent: ${name}.${field} points at a missing row.`)
         }
         next[field] = mapped
@@ -106,12 +95,20 @@ export async function importAll(userId, payload) {
       return next
     })
 
-    idMap.set(name, localMap)
-
+    // PostgREST returns the inserted rows in the order they were sent, which is
+    // what lets the new ids be paired back up with the ids from the file.
+    const localMap = new Map()
     for (let i = 0; i < prepared.length; i += CHUNK) {
-      const { error } = await supabase.from(name).insert(prepared.slice(i, i + CHUNK))
+      const slice = prepared.slice(i, i + CHUNK)
+      const { data, error } = await supabase.from(name).insert(slice).select('id')
       if (error) throw new Error(`importing ${name}: ${error.message}`)
+      if (!data || data.length !== slice.length) {
+        throw new Error(`importing ${name}: expected ${slice.length} rows back, got ${data?.length ?? 0}.`)
+      }
+      data.forEach((inserted, idx) => localMap.set(rows[i + idx].id, inserted.id))
     }
+
+    idMap.set(name, localMap)
   }
 
   await supabase

@@ -202,7 +202,7 @@ export function useRoadmap() {
         await supabase
           .from('phases')
           .select(
-            'id, code, name, weeks, tag, order_idx, task_groups(id, title, order_idx, phase_id, tasks(id, title, notes, done, order_idx, group_id))'
+            'id, code, name, weeks, tag, order_idx, task_groups(id, title, order_idx, phase_id, tasks(id, label, notes, done, order_idx, group_id))'
           )
           .order('order_idx')
       )
@@ -267,7 +267,7 @@ export function useRoadmap() {
       patchTask(task.id, { done })
       const { error } = await supabase
         .from('tasks')
-        .update({ done, completed_at: done ? new Date().toISOString() : null })
+        .update({ done, done_at: done ? new Date().toISOString() : null })
         .eq('id', task.id)
       if (error) {
         patchTask(task.id, { done: task.done })
@@ -302,7 +302,7 @@ export function useHabits() {
         supabase.from('habits').select('*').order('order_idx').then(unwrap),
         supabase
           .from('habit_log')
-          .select('habit_id, log_date')
+          .select('habit_id, log_date, done')
           .gte('log_date', lastNDays(STREAK_WINDOW_DAYS).at(-1))
           .then(unwrap),
         supabase.from('rules').select('*').order('order_idx').then(unwrap),
@@ -319,30 +319,39 @@ export function useHabits() {
 
   const byCadence = useMemo(
     () => ({
-      daily: habits.filter((h) => h.cadence === 'daily').sort(byOrder),
-      weekly: habits.filter((h) => h.cadence === 'weekly').sort(byOrder),
-      monthly: habits.filter((h) => h.cadence === 'monthly').sort(byOrder),
+      daily: habits.filter((h) => h.type === 'daily').sort(byOrder),
+      weekly: habits.filter((h) => h.type === 'weekly').sort(byOrder),
+      monthly: habits.filter((h) => h.type === 'monthly').sort(byOrder),
     }),
     [habits]
   )
 
-  /** Set of `${habit_id}|${log_date}` for O(1) "is this period done" checks. */
-  const logKeys = useMemo(() => new Set(logs.map((l) => `${l.habit_id}|${l.log_date}`)), [logs])
+  /**
+   * Set of `${habit_id}|${log_date}` for O(1) "is this period done" checks.
+   * `habit_log.done` defaults to true, so a row counts as done unless it says
+   * otherwise -- rows are still deleted on un-toggle.
+   */
+  const doneLogs = useMemo(() => logs.filter((l) => l.done !== false), [logs])
+
+  const logKeys = useMemo(
+    () => new Set(doneLogs.map((l) => `${l.habit_id}|${l.log_date}`)),
+    [doneLogs]
+  )
 
   const isDone = useCallback(
-    (habit, date = new Date()) => logKeys.has(`${habit.id}|${periodKey(habit.cadence, date)}`),
+    (habit, date = new Date()) => logKeys.has(`${habit.id}|${periodKey(habit.type, date)}`),
     [logKeys]
   )
 
   const streak = useMemo(() => {
     const dailyIds = new Set(byCadence.daily.map((h) => h.id))
-    const dailyLogDates = logs.filter((l) => dailyIds.has(l.habit_id)).map((l) => l.log_date)
+    const dailyLogDates = doneLogs.filter((l) => dailyIds.has(l.habit_id)).map((l) => l.log_date)
     return computeStreak(dailyLogDates, dailyIds.size)
-  }, [byCadence.daily, logs])
+  }, [byCadence.daily, doneLogs])
 
   const toggleHabit = useCallback(
     async (habit, date = new Date()) => {
-      const key = periodKey(habit.cadence, date)
+      const key = periodKey(habit.type, date)
       const done = logKeys.has(`${habit.id}|${key}`)
 
       // optimistic
@@ -350,14 +359,22 @@ export function useHabits() {
         ...current,
         logs: done
           ? current.logs.filter((l) => !(l.habit_id === habit.id && l.log_date === key))
-          : [...current.logs, { habit_id: habit.id, log_date: key }],
+          : [...current.logs, { habit_id: habit.id, log_date: key, done: true }],
       }))
 
-      const { error } = done
-        ? await supabase.from('habit_log').delete().eq('habit_id', habit.id).eq('log_date', key)
-        : await supabase
-            .from('habit_log')
-            .insert({ habit_id: habit.id, log_date: key, user_id: user.id })
+      // habit_log has no unique (habit_id, log_date) in the database, so this
+      // cannot be an upsert: clear the period first, then write it if marking done.
+      let { error } = await supabase
+        .from('habit_log')
+        .delete()
+        .eq('habit_id', habit.id)
+        .eq('log_date', key)
+
+      if (!error && !done) {
+        ;({ error } = await supabase
+          .from('habit_log')
+          .insert({ habit_id: habit.id, log_date: key, done: true, user_id: user.id }))
+      }
 
       if (error) {
         query.refresh()
@@ -403,7 +420,7 @@ export function useGym() {
           .then(unwrap),
         supabase
           .from('gym_logs')
-          .select('id, exercise_id, log_date, set_idx, weight, reps')
+          .select('id, exercise_id, log_date, set_number, weight_kg, reps_completed')
           .gte('log_date', lastNDays(120).at(-1))
           .order('log_date', { ascending: false })
           .then(unwrap),
@@ -435,7 +452,7 @@ export function useGym() {
     (exerciseId, date = todayKey()) =>
       (logsByExercise.get(exerciseId) ?? [])
         .filter((l) => l.log_date === date)
-        .sort((a, b) => a.set_idx - b.set_idx),
+        .sort((a, b) => a.set_number - b.set_number),
     [logsByExercise]
   )
 
@@ -447,43 +464,54 @@ export function useGym() {
       const lastDate = previous[0].log_date
       return {
         date: lastDate,
-        sets: previous.filter((l) => l.log_date === lastDate).sort((a, b) => a.set_idx - b.set_idx),
+        sets: previous
+          .filter((l) => l.log_date === lastDate)
+          .sort((a, b) => a.set_number - b.set_number),
       }
     },
     [logsByExercise]
   )
 
-  const logSet = useCallback(
-    async ({ exerciseId, setIdx, weight, reps, date = todayKey() }) => {
-      const row = {
-        user_id: user.id,
-        exercise_id: exerciseId,
-        log_date: date,
-        set_idx: setIdx,
-        weight: weight === '' || weight === null ? null : Number(weight),
-        reps: reps === '' || reps === null ? null : Number(reps),
-      }
-      const { error } = await supabase
-        .from('gym_logs')
-        .upsert(row, { onConflict: 'exercise_id,log_date,set_idx' })
-      if (error) throw new Error(error.message)
-      await query.refresh()
-    },
-    [query, user?.id]
-  )
-
-  const clearSet = useCallback(
-    async ({ exerciseId, setIdx, date = todayKey() }) => {
-      const { error } = await supabase
+  /** Removes whatever is stored for one (exercise, date, set) slot. */
+  const deleteSet = useCallback(
+    ({ exerciseId, setNumber, date }) =>
+      supabase
         .from('gym_logs')
         .delete()
         .eq('exercise_id', exerciseId)
         .eq('log_date', date)
-        .eq('set_idx', setIdx)
+        .eq('set_number', setNumber),
+    []
+  )
+
+  // gym_logs has no unique (exercise_id, log_date, set_number) in the database,
+  // so writing a set is delete-then-insert rather than an upsert.
+  const logSet = useCallback(
+    async ({ exerciseId, setNumber, weightKg, repsCompleted, date = todayKey() }) => {
+      const cleared = await deleteSet({ exerciseId, setNumber, date })
+      if (cleared.error) throw new Error(cleared.error.message)
+
+      const { error } = await supabase.from('gym_logs').insert({
+        user_id: user.id,
+        exercise_id: exerciseId,
+        log_date: date,
+        set_number: setNumber,
+        weight_kg: weightKg === '' || weightKg === null ? null : Number(weightKg),
+        reps_completed: repsCompleted === '' || repsCompleted === null ? null : Number(repsCompleted),
+      })
       if (error) throw new Error(error.message)
       await query.refresh()
     },
-    [query]
+    [deleteSet, query, user?.id]
+  )
+
+  const clearSet = useCallback(
+    async ({ exerciseId, setNumber, date = todayKey() }) => {
+      const { error } = await deleteSet({ exerciseId, setNumber, date })
+      if (error) throw new Error(error.message)
+      await query.refresh()
+    },
+    [deleteSet, query]
   )
 
   /** date -> set of gym_day ids trained that day, derived from logged sets. */
@@ -547,7 +575,7 @@ export function useNeu() {
       )
       const { error } = await supabase
         .from('neu_items')
-        .update({ done, completed_at: done ? new Date().toISOString() : null })
+        .update({ done })
         .eq('id', item.id)
       if (error) {
         query.refresh()
@@ -610,7 +638,7 @@ export function useNews(category, { limit = 40 } = {}) {
           .from('news_articles')
           .select('*')
           .eq('category', category)
-          .order('published_at', { ascending: false })
+          .order('published', { ascending: false, nullsFirst: false })
           .limit(limit)
       ),
     [user?.id, category, limit],
@@ -662,7 +690,7 @@ export function useTopNews(limit = 5) {
         await supabase
           .from('news_articles')
           .select('*')
-          .order('published_at', { ascending: false })
+          .order('published', { ascending: false, nullsFirst: false })
           .limit(limit)
       ),
     [user?.id, limit],

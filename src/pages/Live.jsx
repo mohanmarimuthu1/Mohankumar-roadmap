@@ -68,7 +68,7 @@ export default function Live() {
           {articles.map((item) => (
             <a
               key={item.id}
-              href={item.url}
+              href={item.link}
               target="_blank"
               rel="noreferrer noopener"
               className="flex items-start gap-3 px-4 py-3.5 transition-colors hover:bg-ink-700/40"
@@ -79,7 +79,7 @@ export default function Live() {
                     {item.source || item.category}
                   </span>
                   <span className="text-ink-600">·</span>
-                  <span>{formatRelative(item.published_at)}</span>
+                  <span>{formatRelative(item.published)}</span>
                 </div>
                 <p className="mt-1 text-sm leading-snug text-ink-100">{item.title}</p>
                 {item.summary ? (
