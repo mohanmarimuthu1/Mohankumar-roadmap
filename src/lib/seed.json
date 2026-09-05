@@ -1,0 +1,454 @@
+{
+  "phases": [
+    { "code": "00", "name": "Setup", "weeks": "Week 1-2", "tag": "",
+      "groups": [
+        { "title": "Environment",
+          "tasks": [
+            "Install Python 3.12, VS Code, Git, conda/venv",
+            "GitHub profile README + pinned repos",
+            "Linux basics: cd, ls, grep, ssh",
+            "Git flow: branch, commit, push, PR"
+          ]
+        },
+        { "title": "Kickoff",
+          "tasks": [
+            "Install daily systems (calendar + tracker)",
+            "Subscribe: TLDR AI (daily) + The Batch (weekly)",
+            "Baseline: 10 easy LeetCode",
+            "Follow up India job leads"
+          ]
+        }
+      ]
+    },
+    { "code": "01", "name": "Foundations", "weeks": "Week 3-10", "tag": "",
+      "groups": [
+        { "title": "Python deep (W3-4)",
+          "tasks": [
+            "Data structures + comprehensions",
+            "Functions, decorators, generators",
+            "OOP: classes, inheritance, dataclasses",
+            "Typing, context managers",
+            "Project structure, venv, requests"
+          ]
+        },
+        { "title": "DSA daily (W3-10)",
+          "tasks": [
+            "Arrays, hashing, two pointers, sliding window",
+            "Stack, queue, linked list",
+            "Binary search, recursion, trees",
+            "Heaps, graphs, intro DP",
+            "150 problems (NeetCode 150)"
+          ]
+        },
+        { "title": "Math (W5-8)",
+          "tasks": [
+            "Linear algebra (3B1B)",
+            "Probability: distributions, Bayes",
+            "Stats: mean/var, correlation",
+            "Calculus-lite: gradients, chain rule"
+          ]
+        },
+        { "title": "SQL (W9)",
+          "tasks": ["SELECT, JOIN, GROUP BY, subqueries"]
+        }
+      ]
+    },
+    { "code": "02", "name": "Core ML + DL", "weeks": "Week 11-18", "tag": "",
+      "groups": [
+        { "title": "Classic ML (W11-13)",
+          "tasks": [
+            "Regression: linear, logistic",
+            "Trees, random forest, SVM, kNN",
+            "Unsupervised: k-means, PCA",
+            "Eval: CV, precision/recall/F1, ROC-AUC",
+            "Bias-variance, overfitting, regularization",
+            "scikit-learn hands-on"
+          ]
+        },
+        { "title": "Deep learning (W14-17)",
+          "tasks": [
+            "NN fundamentals: forward/backprop",
+            "Optimizers, loss, activation, dropout",
+            "PyTorch: tensors, autograd, nn.Module",
+            "CNNs + RNN/LSTM",
+            "Transformer + attention from scratch"
+          ]
+        },
+        { "title": "Practice (W18)",
+          "tasks": ["Train image + text classifier end-to-end"]
+        }
+      ]
+    },
+    { "code": "03", "name": "LLM / RAG / Agents", "weeks": "Week 19-28", "tag": "⭐",
+      "groups": [
+        { "title": "LLM fundamentals (W19-20)",
+          "tasks": [
+            "Tokens, context, temperature, sampling",
+            "LLM APIs + prompt engineering",
+            "Cost & latency management"
+          ]
+        },
+        { "title": "RAG → Project 1 (W21-23)",
+          "tasks": [
+            "Embeddings + chunking strategies",
+            "Vector DBs (Chroma / pgvector)",
+            "Build + deploy: chat-with-your-docs"
+          ]
+        },
+        { "title": "Evals ⭐ → Project 2 (W24-25)",
+          "tasks": [
+            "Eval frameworks + LLM-as-judge",
+            "Hallucination detection + guardrails",
+            "Build: eval + hallucination dashboard"
+          ]
+        },
+        { "title": "Agents → Project 3 (W26-27)",
+          "tasks": [
+            "Tool use, function calling, ReAct",
+            "Multi-agent orchestration",
+            "Build: research/coding agent"
+          ]
+        },
+        { "title": "Fine-tuning → Project 4 (W28)",
+          "tasks": [
+            "Fine-tune vs RAG, LoRA/QLoRA",
+            "Build: fine-tuned domain model"
+          ]
+        }
+      ]
+    },
+    { "code": "04", "name": "MLOps + Cloud", "weeks": "Week 29-38", "tag": "🔥",
+      "groups": [
+        { "title": "Containers (W29-30)",
+          "tasks": [
+            "Docker: images, Dockerfile, compose",
+            "Kubernetes basics"
+          ]
+        },
+        { "title": "Cloud (W31-33)",
+          "tasks": [
+            "AWS core: EC2, S3, IAM, Lambda",
+            "SageMaker / Vertex AI basics",
+            "Deploy model as API (FastAPI + cloud)"
+          ]
+        },
+        { "title": "CI/CD & serving (W34-35)",
+          "tasks": [
+            "GitHub Actions + testing",
+            "Model serving: FastAPI, vLLM",
+            "Experiment tracking: MLflow / W&B"
+          ]
+        },
+        { "title": "Monitoring (W36-37)",
+          "tasks": ["Logging, metrics, drift detection, cost tracking"]
+        },
+        { "title": "Capstone → Project 5 (W38)",
+          "tasks": ["Full pipeline: train → serve → monitor on cloud"]
+        }
+      ]
+    },
+    { "code": "05", "name": "System Design + Flagship", "weeks": "Week 39-44", "tag": "",
+      "groups": [
+        { "title": "ML system design (W39-41)",
+          "tasks": [
+            "Data pipeline, feature store, serving at scale",
+            "Caching, latency/throughput, cost",
+            "Case studies: recommender, RAG at scale",
+            "Read: Designing ML Systems"
+          ]
+        },
+        { "title": "Flagship → Project 6 (W42-44)",
+          "tasks": [
+            "Manufacturing AI: family lathe business",
+            "Real data, real user, deployed",
+            "Blog post + demo video"
+          ]
+        }
+      ]
+    },
+    { "code": "06", "name": "Interview + Ship", "weeks": "Week 45-52", "tag": "",
+      "groups": [
+        { "title": "DSA hard (W45-47)",
+          "tasks": [
+            "Advanced DP, graphs, greedy",
+            "100+ more problems (med/hard)",
+            "Timed mock coding rounds"
+          ]
+        },
+        { "title": "ML + behavioral (W48-49)",
+          "tasks": [
+            "ML depth Q&A + system design mocks",
+            "STAR stories from your projects",
+            "Read: ML Interviews (Chip Huyen)"
+          ]
+        },
+        { "title": "OSS + polish → Project 7 (W50)",
+          "tasks": [
+            "Contribute to LangChain/HF/vLLM",
+            "Portfolio site + blog series"
+          ]
+        },
+        { "title": "Apply (W51-52)",
+          "tasks": [
+            "Resume variants + LinkedIn",
+            "Referrals, applications, internship pipeline"
+          ]
+        }
+      ]
+    }
+  ],
+
+  "habits": {
+    "daily": [
+      "Deep work block (2-3h, phone off)",
+      "DSA 45 min",
+      "AI scan 5 min",
+      "Gym / movement",
+      "Journal + tomorrow's top 3"
+    ],
+    "weekly": [
+      "Deep AI read — The Batch / Latent Space",
+      "1 podcast — Latent Space / Dwarkesh",
+      "Ship something public",
+      "Sunday review + next week plan"
+    ],
+    "monthly": [
+      "Monthly review (1st Sunday)",
+      "Financial review (15th)",
+      "Digital detox weekend (last Sunday)"
+    ]
+  },
+
+  "rules": [
+    "No social media before 10 AM",
+    "DSA every day — even 15 min counts",
+    "Ship one thing weekly publicly",
+    "Sleep 7h minimum — never trade",
+    "No new frameworks mid-project",
+    "Weekly wins log",
+    "Say no to 90% of things",
+    "No phone in bed",
+    "Gym 3× minimum per week",
+    "1 book per month, non-fiction"
+  ],
+
+  "gym_days": [
+    { "name": "Push", "focus": "Chest / Shoulders / Triceps",
+      "exercises": [
+        { "name": "Barbell bench press", "sets": 4, "reps": "6-8", "rest_seconds": 180, "notes": "Feet planted, arch back, elbows 60°" },
+        { "name": "Incline DB press (30°)", "sets": 3, "reps": "8-10", "rest_seconds": 90, "notes": "Squeeze at top, control descent 3s" },
+        { "name": "Seated OHP", "sets": 3, "reps": "8-10", "rest_seconds": 120, "notes": "Core tight, no back arch" },
+        { "name": "Cable chest fly", "sets": 3, "reps": "12-15", "rest_seconds": 60, "notes": "Slight bend elbows, meet at center" },
+        { "name": "DB lateral raise", "sets": 4, "reps": "12-15", "rest_seconds": 60, "notes": "Slight bend, lead with elbows" },
+        { "name": "Tricep pushdown (rope)", "sets": 3, "reps": "12", "rest_seconds": 60, "notes": "Elbows tucked, split rope" },
+        { "name": "Overhead tricep extension", "sets": 3, "reps": "10-12", "rest_seconds": 60, "notes": "Full stretch, no elbow flare" }
+      ]
+    },
+    { "name": "Pull", "focus": "Back / Biceps / Rear Delts",
+      "exercises": [
+        { "name": "Deadlift", "sets": 4, "reps": "5", "rest_seconds": 180, "notes": "Bar over midfoot, neutral spine" },
+        { "name": "Weighted pull-ups", "sets": 4, "reps": "6-10", "rest_seconds": 120, "notes": "Full hang, chin over bar" },
+        { "name": "Barbell row", "sets": 3, "reps": "8-10", "rest_seconds": 90, "notes": "Torso 45°, pull to belly button" },
+        { "name": "Lat pulldown (wide)", "sets": 3, "reps": "10-12", "rest_seconds": 90, "notes": "Lean back 15°, elbows down" },
+        { "name": "Cable row (close grip)", "sets": 3, "reps": "10-12", "rest_seconds": 90, "notes": "Squeeze shoulder blades" },
+        { "name": "Face pull", "sets": 4, "reps": "15", "rest_seconds": 60, "notes": "Rope to face, elbows high" },
+        { "name": "Barbell curl", "sets": 3, "reps": "8-10", "rest_seconds": 60, "notes": "No swing, full ROM" },
+        { "name": "Hammer curl", "sets": 3, "reps": "10", "rest_seconds": 60, "notes": "Neutral grip, alternate" }
+      ]
+    },
+    { "name": "Legs", "focus": "Quads / Hams / Glutes / Calves",
+      "exercises": [
+        { "name": "Back squat", "sets": 4, "reps": "6-8", "rest_seconds": 180, "notes": "Below parallel, knees track toes" },
+        { "name": "Romanian deadlift", "sets": 3, "reps": "8-10", "rest_seconds": 120, "notes": "Slight knee bend, push hips back" },
+        { "name": "Leg press", "sets": 3, "reps": "10-12", "rest_seconds": 90, "notes": "Full ROM, no lockout" },
+        { "name": "Walking DB lunges", "sets": 3, "reps": "12 each", "rest_seconds": 90, "notes": "Back knee kisses floor" },
+        { "name": "Seated leg curl", "sets": 3, "reps": "12", "rest_seconds": 60, "notes": "Slow eccentric" },
+        { "name": "Standing calf raise", "sets": 4, "reps": "15-20", "rest_seconds": 60, "notes": "Full stretch, pause at top" }
+      ]
+    },
+    { "name": "Push 2", "focus": "OHP focused variation",
+      "exercises": [
+        { "name": "Overhead press", "sets": 4, "reps": "6", "rest_seconds": 180, "notes": "Main lift today" },
+        { "name": "Bench press", "sets": 3, "reps": "8", "rest_seconds": 120, "notes": "Secondary" },
+        { "name": "Dips", "sets": 3, "reps": "8-10", "rest_seconds": 90, "notes": "Add weight when 10 easy" }
+      ]
+    },
+    { "name": "Pull 2", "focus": "Row focused variation",
+      "exercises": [
+        { "name": "T-bar row", "sets": 4, "reps": "8", "rest_seconds": 180, "notes": "Main pull today" },
+        { "name": "Chin-ups", "sets": 3, "reps": "8", "rest_seconds": 120, "notes": "Underhand grip" },
+        { "name": "Rear delt fly", "sets": 3, "reps": "15", "rest_seconds": 60, "notes": "Light, strict" }
+      ]
+    }
+  ],
+
+  "resources": [
+    { "category": "DSA", "name": "NeetCode", "url": "https://neetcode.io/" },
+    { "category": "DSA", "name": "LeetCode", "url": "https://leetcode.com/" },
+    { "category": "DSA", "name": "CS50P", "url": "https://cs50.harvard.edu/python/" },
+    { "category": "Math", "name": "3Blue1Brown", "url": "https://www.3blue1brown.com/" },
+    { "category": "Math", "name": "StatQuest", "url": "https://www.youtube.com/@statquest" },
+    { "category": "ML/DL", "name": "fast.ai", "url": "https://course.fast.ai/" },
+    { "category": "ML/DL", "name": "CS231n", "url": "http://cs231n.stanford.edu/" },
+    { "category": "ML/DL", "name": "CS224n", "url": "https://web.stanford.edu/class/cs224n/" },
+    { "category": "ML/DL", "name": "d2l.ai", "url": "https://d2l.ai/" },
+    { "category": "LLM/RAG", "name": "HuggingFace Courses", "url": "https://huggingface.co/learn" },
+    { "category": "LLM/RAG", "name": "LangChain", "url": "https://python.langchain.com/" },
+    { "category": "LLM/RAG", "name": "Anthropic Cookbook", "url": "https://github.com/anthropics/anthropic-cookbook" },
+    { "category": "MLOps", "name": "MLOps Zoomcamp", "url": "https://github.com/DataTalksClub/mlops-zoomcamp" },
+    { "category": "MLOps", "name": "Made With ML", "url": "https://madewithml.com/" },
+    { "category": "System Design", "name": "ByteByteGo", "url": "https://www.youtube.com/@ByteByteGo" },
+    { "category": "System Design", "name": "ML Interviews", "url": "https://huyenchip.com/ml-interviews-book/" }
+  ],
+
+  "neu_sections": [
+    { "title": "Visa (F1 re-application)",
+      "items": [
+        "Book Chennai consulate slot",
+        "Pay SEVIS I-901 fee ($350)",
+        "Fill DS-160",
+        "Prep bank loan sanction letter",
+        "Prep manufacturing project one-pager",
+        "3 mock interviews with NEU alumni",
+        "Rehearse ties-to-India narrative 50+ times",
+        "Attend visa interview"
+      ]
+    },
+    { "title": "Pre-arrival documents",
+      "items": [
+        "Notarize + apostille degree/transcripts",
+        "Vaccination records (MMR, Tdap, meningitis)",
+        "Health checkup",
+        "International driver's permit",
+        "Open forex card (HDFC/ICICI)",
+        "Notify banks of international travel"
+      ]
+    },
+    { "title": "Housing",
+      "items": [
+        "Apply NEU housing portal (Jun 2027)",
+        "Join NEU CS Grad Housing WhatsApp",
+        "Join Boston Indian Students group",
+        "Confirm accommodation with lease",
+        "Pay security deposit via Wise"
+      ]
+    },
+    { "title": "Travel + Packing",
+      "items": [
+        "Book flight (Qatar/Emirates, 1 stop)",
+        "Pack docs in carry-on (I-20, passport, SEVIS)",
+        "Pack spices, cooker, meds + prescriptions",
+        "Skip bulky items (buy in US)",
+        "Weigh bags before airport"
+      ]
+    },
+    { "title": "First week in Boston",
+      "items": [
+        "Get US SIM (Mint Mobile)",
+        "Buy sheets, pillow, blanket (Target)",
+        "Buy kitchen basics (pan, pot, plates)",
+        "Buy cleaning supplies",
+        "First grocery run (H-Mart)",
+        "Attend orientation events"
+      ]
+    },
+    { "title": "Month 1 essentials",
+      "items": [
+        "Winter coat (Marshalls $100)",
+        "Winter boots (Timberland outlet)",
+        "Rice cooker (H-Mart)",
+        "Instant Pot / slow cooker",
+        "Study desk lamp",
+        "Get student credit card (Discover it)"
+      ]
+    },
+    { "title": "TA / RA outreach",
+      "items": [
+        "Email 5 target profs before arrival (Jun 2027)",
+        "Personalize each email with paper reference",
+        "Attach CV + your papers + research proposal",
+        "Follow up in 10 days if no reply",
+        "Attend office hours weeks 1-4"
+      ]
+    },
+    { "title": "Clubs (join week 1)",
+      "items": [
+        "NEU AI Club",
+        "Khoury Graduate Student Association",
+        "ACM student chapter",
+        "Grace Hopper Prep Circle",
+        "Indian Students Association",
+        "Toastmasters (communication skills)"
+      ]
+    },
+    { "title": "Co-op / Internship strategy",
+      "items": [
+        "Attend co-op orientation week 1",
+        "Register in NUworks",
+        "Apply 100+ Summer 2028 internships (Sep-Oct)",
+        "Tier 1 MAANG: 20 apps",
+        "Tier 2 AI labs (Anthropic, OpenAI): 10 apps",
+        "Tier 3 AI startups: 30 apps",
+        "Tier 4 Enterprise (JPMC, Wayfair): 20 apps",
+        "Backup India (Google/MS India): 20 apps"
+      ]
+    },
+    { "title": "Networking (weekly)",
+      "items": [
+        "3 LinkedIn connections/day at target companies",
+        "2 informational chats/week (30 min)",
+        "1 event attended/week",
+        "1 LinkedIn post/week (project/learning)",
+        "Update CRM after every chat"
+      ]
+    },
+    { "title": "Groceries (weekly)",
+      "items": [
+        "H-Mart run: rice, dal, spices, veg",
+        "Trader Joe's: frozen veg, oats, dairy",
+        "Costco monthly: bulk oil, eggs, chicken",
+        "Sunday meal prep 2 hours",
+        "Budget: $50-70/week"
+      ]
+    },
+    { "title": "Health & safety",
+      "items": [
+        "Use NEU insurance for checkups",
+        "Book UHCS counseling if stressed",
+        "Vitamin D + sun lamp (winter SAD)",
+        "Get flu shot at Marino Center",
+        "Get renter's insurance ($15/mo)"
+      ]
+    },
+    { "title": "Visa compliance (never break)",
+      "items": [
+        "Never work off-campus without CPT/OPT",
+        "Stay full-time enrolled (12+ credits)",
+        "Update SEVIS address within 10 days of moving",
+        "Report internship to ISSS BEFORE starting",
+        "Attend every immigration workshop"
+      ]
+    },
+    { "title": "Financial (monthly)",
+      "items": [
+        "Track spending in Mint/YNAB",
+        "Build credit: pay Discover card monthly",
+        "Emergency fund: 3 months expenses",
+        "Rent + utilities: $1000",
+        "Food: $250",
+        "Transport: $30 (student T-pass)",
+        "Total budget: $1800-2200/mo"
+      ]
+    },
+    { "title": "GitHub Student Pack (day 1)",
+      "items": [
+        "Activate JetBrains (1 year free)",
+        "Activate DigitalOcean $200 credit",
+        "Activate Namecheap .me domain",
+        "Activate Notion Pro",
+        "Activate Copilot Pro",
+        "Activate MongoDB Atlas credits"
+      ]
+    }
+  ]
+}
