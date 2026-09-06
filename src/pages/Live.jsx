@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ArrowUpRight, RefreshCw } from 'lucide-react'
-import { Card, EmptyState, ErrorNote, SkeletonList } from '../components/ui'
+import { Card, EmptyState, ErrorNote, PageHeader, SkeletonList } from '../components/ui'
 import { useToast } from '../components/Toast'
 import { LIVE_CATEGORIES, useNews } from '../lib/hooks'
 import { supabase } from '../lib/supabase'
@@ -30,34 +30,39 @@ export default function Live() {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <nav className="no-scrollbar -mx-1 flex flex-1 gap-1 overflow-x-auto px-1">
-          {LIVE_CATEGORIES.map(({ key, label }) => (
-            <button
-              key={key}
-              onClick={() => setCategory(key)}
-              className={[
-                'shrink-0 rounded-lg px-3 py-1.5 text-[13px] font-medium transition-colors',
-                key === category
-                  ? 'bg-accent-soft text-accent'
-                  : 'text-ink-300 hover:bg-ink-700 hover:text-ink-100',
-              ].join(' ')}
-            >
-              {label}
-            </button>
-          ))}
-        </nav>
+    <div className="space-y-6">
+      <PageHeader
+        actions={
+          <button
+            onClick={triggerRefetch}
+            disabled={refreshing}
+            aria-label="Refresh feeds"
+            title="Refresh feeds"
+            className="rounded-xl border border-ink-600 p-2.5 text-ink-300 transition-colors hover:bg-ink-700 hover:text-ink-100 disabled:opacity-50"
+          >
+            <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />
+          </button>
+        }
+      />
 
-        <button
-          onClick={triggerRefetch}
-          disabled={refreshing}
-          aria-label="Refresh feeds"
-          className="shrink-0 rounded-lg border border-ink-500 p-2 text-ink-300 transition-colors hover:bg-ink-700 hover:text-ink-100 disabled:opacity-50"
-        >
-          <RefreshCw size={15} className={refreshing ? 'animate-spin' : ''} />
-        </button>
-      </div>
+      {/* Category filter. Scrolls rather than wraps so the row stays one line. */}
+      <nav aria-label="Feed category" className="no-scrollbar -mx-1 flex gap-1 overflow-x-auto px-1">
+        {LIVE_CATEGORIES.map(({ key, label }) => (
+          <button
+            key={key}
+            onClick={() => setCategory(key)}
+            aria-current={key === category ? 'true' : undefined}
+            className={[
+              'shrink-0 rounded-lg px-3 py-1.5 text-[13px] font-medium transition-colors',
+              key === category
+                ? 'bg-accent-soft text-accent'
+                : 'text-ink-300 hover:bg-ink-700 hover:text-ink-100',
+            ].join(' ')}
+          >
+            {label}
+          </button>
+        ))}
+      </nav>
 
       {error ? <ErrorNote error={error} onRetry={refresh} /> : null}
 
@@ -71,14 +76,14 @@ export default function Live() {
               href={item.link}
               target="_blank"
               rel="noreferrer noopener"
-              className="flex items-start gap-3 px-4 py-3.5 transition-colors hover:bg-ink-700/40"
+              className="flex items-start gap-3 px-4 py-3.5 transition-colors first:rounded-t-2xl last:rounded-b-2xl hover:bg-ink-700"
             >
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 text-[11px] text-ink-400">
                   <span className="font-medium uppercase tracking-wide text-accent">
                     {item.source || item.category}
                   </span>
-                  <span className="text-ink-600">·</span>
+                  <span className="text-ink-500">·</span>
                   <span>{formatRelative(item.published)}</span>
                 </div>
                 <p className="mt-1 text-sm leading-snug text-ink-100">{item.title}</p>
@@ -98,7 +103,7 @@ export default function Live() {
         </EmptyState>
       )}
 
-      <p className="text-center text-[11px] text-ink-500">Auto-refreshes every 5 minutes</p>
+      <p className="text-center text-[11px] text-ink-400">Auto-refreshes every 5 minutes</p>
     </div>
   )
 }

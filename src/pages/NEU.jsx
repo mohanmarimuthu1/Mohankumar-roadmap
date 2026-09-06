@@ -1,7 +1,16 @@
 import { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import Ring from '../components/Ring'
-import { Card, Checkbox, EmptyState, ErrorNote, ProgressBar, SectionTitle, Skeleton } from '../components/ui'
+import {
+  Card,
+  Checkbox,
+  EmptyState,
+  ErrorNote,
+  PageHeader,
+  ProgressBar,
+  SectionTitle,
+  Skeleton,
+} from '../components/ui'
 import EditableList from '../components/EditableList'
 import { useToast } from '../components/Toast'
 import { useEditMode, useNeu } from '../lib/hooks'
@@ -29,38 +38,51 @@ export default function NEU() {
     }
   }
 
-  if (error) return <ErrorNote error={error} onRetry={refresh} />
-
   if (loading) {
     return (
-      <div className="space-y-3">
-        <Skeleton className="h-28" />
-        {Array.from({ length: 8 }, (_, i) => (
-          <Skeleton key={i} className="h-16" />
-        ))}
+      <div className="space-y-8">
+        <PageHeader title="Northeastern" />
+        <div className="space-y-3">
+          <Skeleton className="h-28" />
+          {Array.from({ length: 8 }, (_, i) => (
+            <Skeleton key={i} className="h-16" />
+          ))}
+        </div>
       </div>
     )
   }
 
-  if (!sections.length) return <EmptyState>No sections yet.</EmptyState>
+  if (error || !sections.length) {
+    return (
+      <div className="space-y-8">
+        <PageHeader title="Northeastern" />
+        {error ? (
+          <ErrorNote error={error} onRetry={refresh} />
+        ) : (
+          <EmptyState>No sections yet.</EmptyState>
+        )}
+      </div>
+    )
+  }
 
   const allItems = sections.flatMap((s) => s.neu_items)
   const doneCount = allItems.filter((i) => i.done).length
 
   return (
-    <div className="space-y-6">
-      <section className="flex items-center gap-5">
+    <div className="space-y-8">
+      <PageHeader title="Northeastern" />
+
+      <Card className="flex items-center gap-5 p-5">
         <Ring value={allItems.length ? doneCount / allItems.length : 0} size={96} sublabel="ready" />
-        <div>
-          <h1 className="font-display text-xl font-semibold tracking-tight text-ink-50">
-            Northeastern
-          </h1>
-          <p className="mt-1 text-sm text-ink-300">
-            {doneCount} of {allItems.length} pre-arrival items done
+        <div className="min-w-0">
+          <p className="font-display text-base font-semibold text-ink-50">
+            {doneCount} of {allItems.length} items done
           </p>
-          <p className="mt-0.5 text-xs text-ink-400">{sections.length} sections</p>
+          <p className="mt-1 text-sm text-ink-300">
+            across {sections.length} pre-arrival {sections.length === 1 ? 'section' : 'sections'}
+          </p>
         </div>
-      </section>
+      </Card>
 
       <section className="space-y-3">
         <SectionTitle>Checklists</SectionTitle>

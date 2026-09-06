@@ -1,6 +1,15 @@
 import { useEffect, useState } from 'react'
 import { ChevronDown, Dumbbell, History, Timer } from 'lucide-react'
-import { Button, Card, EmptyState, ErrorNote, Modal, SectionTitle, Skeleton } from '../components/ui'
+import {
+  Button,
+  Card,
+  EmptyState,
+  ErrorNote,
+  Modal,
+  PageHeader,
+  SectionTitle,
+  Skeleton,
+} from '../components/ui'
 import EditableList from '../components/EditableList'
 import { useToast } from '../components/Toast'
 import { useGym } from '../lib/hooks'
@@ -16,23 +25,37 @@ export default function Gym() {
     if (!openDay && gym.days.length) setOpenDay(gym.days[0].id)
   }, [gym.days, openDay])
 
-  if (gym.error) return <ErrorNote error={gym.error} onRetry={gym.refresh} />
-
   if (gym.loading) {
     return (
-      <div className="space-y-3">
-        <Skeleton className="h-24" />
-        {Array.from({ length: 5 }, (_, i) => (
-          <Skeleton key={i} className="h-16" />
-        ))}
+      <div className="space-y-8">
+        <PageHeader />
+        <div className="space-y-3">
+          <Skeleton className="h-28" />
+          {Array.from({ length: 5 }, (_, i) => (
+            <Skeleton key={i} className="h-16" />
+          ))}
+        </div>
       </div>
     )
   }
 
-  if (!gym.days.length) return <EmptyState>No training days yet.</EmptyState>
+  if (gym.error || !gym.days.length) {
+    return (
+      <div className="space-y-8">
+        <PageHeader />
+        {gym.error ? (
+          <ErrorNote error={gym.error} onRetry={gym.refresh} />
+        ) : (
+          <EmptyState>No training days yet.</EmptyState>
+        )}
+      </div>
+    )
+  }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      <PageHeader />
+
       <WeekView gym={gym} />
 
       <section className="space-y-3">
@@ -115,18 +138,18 @@ function ExerciseRow({ exercise, gym, onOpen }) {
 
   return (
     <div className="border-b border-ink-700 last:border-b-0">
-      <button onClick={onOpen} className="w-full px-4 py-3 text-left transition-colors hover:bg-ink-700/40">
+      <button onClick={onOpen} className="w-full px-4 py-3 text-left transition-colors hover:bg-ink-700">
         <div className="flex items-start gap-3">
           <div className="min-w-0 flex-1">
             <p className="text-sm font-medium text-ink-100">{exercise.name}</p>
             <p className="mt-0.5 text-xs text-ink-400">
               {exercise.sets} × {exercise.reps}
-              <span className="mx-1.5 text-ink-600">|</span>
+              <span className="mx-1.5 text-ink-500">|</span>
               <Timer size={11} className="mb-0.5 mr-1 inline" />
               {exercise.rest_seconds}s
             </p>
             {exercise.notes ? (
-              <p className="mt-1 text-xs leading-snug text-ink-500">{exercise.notes}</p>
+              <p className="mt-1 text-xs leading-snug text-ink-400">{exercise.notes}</p>
             ) : null}
           </div>
 
@@ -137,12 +160,12 @@ function ExerciseRow({ exercise, gym, onOpen }) {
               </span>
             ) : null}
             {last ? (
-              <p className="mt-1 flex items-center justify-end gap-1 text-[11px] text-ink-500">
+              <p className="mt-1 flex items-center justify-end gap-1 text-[11px] text-ink-400">
                 <History size={10} />
                 {summariseSets(last.sets)}
               </p>
             ) : (
-              <p className="mt-1 text-[11px] text-ink-600">no history</p>
+              <p className="mt-1 text-[11px] text-ink-400">no history</p>
             )}
           </div>
         </div>
@@ -237,14 +260,14 @@ function LogModal({ exercise, gym, onClose }) {
         Target {exercise?.sets} × {exercise?.reps} · rest {exercise?.rest_seconds}s
         {last ? (
           <>
-            <span className="mx-1.5 text-ink-600">|</span>
+            <span className="mx-1.5 text-ink-500">|</span>
             last {formatRelative(`${last.date}T12:00:00`)}
           </>
         ) : null}
       </p>
 
       <div className="space-y-2">
-        <div className="grid grid-cols-[2rem_1fr_1fr] gap-2 px-1 text-[10px] uppercase tracking-wide text-ink-500">
+        <div className="grid grid-cols-[2rem_1fr_1fr] gap-2 px-1 text-[10px] uppercase tracking-wide text-ink-400">
           <span>Set</span>
           <span>Weight (kg)</span>
           <span>Reps</span>
@@ -260,7 +283,7 @@ function LogModal({ exercise, gym, onClose }) {
               value={row.weightKg}
               placeholder={row.placeholderWeight === '' ? '—' : String(row.placeholderWeight)}
               onChange={(e) => update(row.setNumber, 'weightKg', e.target.value)}
-              className="w-full rounded-lg border border-ink-500 bg-ink-900 px-3 py-2 text-sm text-ink-100 placeholder:text-ink-600 focus:border-accent focus:outline-none"
+              className="w-full rounded-lg border border-ink-500 bg-ink-900 px-3 py-2 text-sm text-ink-100 placeholder:text-ink-400 focus:border-accent focus:outline-none"
             />
             <input
               type="number"
@@ -268,13 +291,13 @@ function LogModal({ exercise, gym, onClose }) {
               value={row.repsCompleted}
               placeholder={row.placeholderReps === '' ? '—' : String(row.placeholderReps)}
               onChange={(e) => update(row.setNumber, 'repsCompleted', e.target.value)}
-              className="w-full rounded-lg border border-ink-500 bg-ink-900 px-3 py-2 text-sm text-ink-100 placeholder:text-ink-600 focus:border-accent focus:outline-none"
+              className="w-full rounded-lg border border-ink-500 bg-ink-900 px-3 py-2 text-sm text-ink-100 placeholder:text-ink-400 focus:border-accent focus:outline-none"
             />
           </div>
         ))}
       </div>
 
-      <p className="mt-3 text-[11px] text-ink-500">
+      <p className="mt-3 text-[11px] text-ink-400">
         Greyed numbers are last session — beat them. Clear a row to delete that set.
       </p>
     </Modal>
@@ -297,7 +320,7 @@ function WeekView({ gym }) {
           return (
             <div key={date} className="flex flex-col items-center gap-1.5">
               <span
-                className={`text-[10px] uppercase tracking-wide ${isToday ? 'text-accent' : 'text-ink-500'}`}
+                className={`text-[10px] uppercase tracking-wide ${isToday ? 'text-accent' : 'text-ink-400'}`}
               >
                 {label}
               </span>
@@ -308,8 +331,8 @@ function WeekView({ gym }) {
                   trained.length
                     ? 'border-accent-line bg-accent-soft text-accent'
                     : date > today
-                      ? 'border-ink-600 text-ink-600'
-                      : 'border-ink-600 text-ink-500',
+                      ? 'border-ink-600 text-ink-500'
+                      : 'border-ink-600 bg-ink-700/60 text-ink-400',
                 ].join(' ')}
               >
                 {trained.length ? (

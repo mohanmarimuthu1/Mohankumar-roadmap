@@ -1,5 +1,7 @@
 import { useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import { Check, AlertTriangle, X } from 'lucide-react'
+import { navItemFor } from '../lib/nav'
 
 /* ------------------------------------------------------------- skeletons */
 
@@ -19,6 +21,30 @@ export function SkeletonList({ rows = 4, className = 'h-12' }) {
 
 /* ------------------------------------------------------------- structure */
 
+/**
+ * The one heading every page opens with. Title and description default to the
+ * current route's entry in src/lib/nav.js, so a page only spells them out when
+ * it wants something other than its nav label.
+ */
+export function PageHeader({ title, description, actions, className = '' }) {
+  const { pathname } = useLocation()
+  const item = navItemFor(pathname)
+  const heading = title ?? item?.label
+  const sub = description === undefined ? item?.description : description
+
+  return (
+    <header className={`flex items-start gap-4 ${className}`}>
+      <div className="min-w-0 flex-1">
+        <h1 className="font-display text-xl font-semibold tracking-tight text-ink-50 sm:text-[26px]">
+          {heading}
+        </h1>
+        {sub ? <p className="mt-1 text-sm leading-relaxed text-ink-300">{sub}</p> : null}
+      </div>
+      {actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}
+    </header>
+  )
+}
+
 export function Card({ className = '', children, ...rest }) {
   return (
     <div
@@ -32,8 +58,8 @@ export function Card({ className = '', children, ...rest }) {
 
 export function SectionTitle({ children, action }) {
   return (
-    <div className="mb-3 flex items-center justify-between">
-      <h2 className="font-display text-xs font-semibold uppercase tracking-[0.12em] text-ink-300">
+    <div className="mb-3 flex items-center justify-between gap-3">
+      <h2 className="font-display text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-400">
         {children}
       </h2>
       {action}
@@ -43,7 +69,7 @@ export function SectionTitle({ children, action }) {
 
 export function EmptyState({ children }) {
   return (
-    <p className="rounded-xl border border-dashed border-ink-500 px-4 py-6 text-center text-sm text-ink-300">
+    <p className="rounded-2xl border border-ink-600 bg-ink-800 px-4 py-8 text-center text-sm leading-relaxed text-ink-300">
       {children}
     </p>
   )
@@ -117,20 +143,36 @@ export function ProgressBar({ value = 0, className = '' }) {
   )
 }
 
-export function Button({ variant = 'ghost', className = '', children, ...rest }) {
+export function Button({ variant = 'ghost', size = 'md', className = '', children, ...rest }) {
   const styles = {
     primary: 'bg-accent text-on-accent hover:opacity-90',
-    ghost: 'border border-ink-500 text-ink-200 hover:bg-ink-700 hover:text-ink-100',
-    danger: 'border border-ink-500 text-ink-100 hover:border-accent hover:text-accent',
+    ghost: 'border border-ink-600 text-ink-200 hover:bg-ink-700 hover:text-ink-100',
+    danger: 'border border-ink-600 text-ink-100 hover:border-accent hover:text-accent',
+    quiet: 'text-ink-300 hover:bg-ink-700 hover:text-ink-100',
   }[variant]
+
+  const sizes = {
+    sm: 'gap-1.5 rounded-lg px-2.5 py-1.5 text-xs',
+    md: 'gap-2 rounded-xl px-3.5 py-2 text-sm',
+  }[size]
 
   return (
     <button
-      className={`inline-flex items-center justify-center gap-2 rounded-xl px-3.5 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${styles} ${className}`}
+      className={`inline-flex items-center justify-center font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${sizes} ${styles} ${className}`}
       {...rest}
     >
       {children}
     </button>
+  )
+}
+
+/** Small labelled figure -- used for the counters that sit beside a heading. */
+export function Metric({ value, label, className = '' }) {
+  return (
+    <div className={`min-w-0 ${className}`}>
+      <p className="font-display text-lg font-semibold leading-none text-ink-50">{value}</p>
+      <p className="mt-1 truncate text-[11px] uppercase tracking-wide text-ink-400">{label}</p>
+    </div>
   )
 }
 
@@ -162,7 +204,7 @@ export function Modal({ open, onClose, title, children, footer }) {
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="pb-safe relative w-full max-w-md rounded-t-2xl border border-ink-600 bg-ink-800 shadow-2xl sm:rounded-2xl"
+        className="pb-safe shadow-soft relative w-full max-w-md rounded-t-2xl border border-ink-600 bg-ink-800 sm:rounded-2xl"
       >
         <div className="flex items-center justify-between border-b border-ink-600 px-5 py-3.5">
           <h3 className="font-display text-sm font-semibold text-ink-50">{title}</h3>

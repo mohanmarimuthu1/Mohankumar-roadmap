@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { Download, LogOut, Palette, Pencil, RotateCcw, Upload } from 'lucide-react'
-import { Button, Card, ConfirmModal, SectionTitle } from '../components/ui'
+import { Button, Card, ConfirmModal, PageHeader, SectionTitle } from '../components/ui'
 import { ThemePicker } from '../components/ThemeToggle'
 import { useToast } from '../components/Toast'
 import { useAuth, useEditMode } from '../lib/hooks'
@@ -75,7 +75,9 @@ export default function Settings() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      <PageHeader />
+
       {/* ----------------------------------------------------------- account */}
       <section>
         <SectionTitle>Account</SectionTitle>
@@ -85,7 +87,7 @@ export default function Settings() {
               src={user.user_metadata.avatar_url}
               alt=""
               referrerPolicy="no-referrer"
-              className="h-10 w-10 rounded-full border border-ink-500"
+              className="h-10 w-10 rounded-full border border-ink-600 object-cover"
             />
           ) : null}
           <div className="min-w-0 flex-1">
@@ -188,7 +190,7 @@ export default function Settings() {
         </Card>
       </section>
 
-      <p className="pb-2 text-center text-[11px] text-ink-600">Mohan Roadmap</p>
+      <p className="pb-2 text-center text-[11px] text-ink-400">Mohan Roadmap</p>
 
       <ConfirmModal
         open={confirm === 'reset'}

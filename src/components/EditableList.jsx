@@ -224,7 +224,7 @@ function SortableRow({
         {...attributes}
         {...listeners}
         aria-label="Reorder"
-        className="shrink-0 cursor-grab touch-none rounded-lg p-1.5 text-ink-500 hover:text-ink-200 active:cursor-grabbing"
+        className="shrink-0 cursor-grab touch-none rounded-lg p-1.5 text-ink-400 hover:text-ink-100 active:cursor-grabbing"
       >
         <GripVertical size={15} />
       </button>
@@ -247,7 +247,7 @@ function SortableRow({
           <button
             onClick={onEdit}
             aria-label="Rename"
-            className="shrink-0 rounded-lg p-1.5 text-ink-500 transition-colors hover:bg-ink-700 hover:text-ink-100"
+            className="shrink-0 rounded-lg p-1.5 text-ink-400 transition-colors hover:bg-ink-700 hover:text-ink-100"
           >
             <Pencil size={14} />
           </button>
@@ -255,7 +255,7 @@ function SortableRow({
           <button
             onClick={onDelete}
             aria-label="Delete"
-            className="shrink-0 rounded-lg p-1.5 text-ink-500 transition-colors hover:bg-ink-700 hover:text-accent"
+            className="shrink-0 rounded-lg p-1.5 text-ink-400 transition-colors hover:bg-ink-700 hover:text-accent"
           >
             <Trash2 size={14} />
           </button>
@@ -279,7 +279,7 @@ function InlineInput({ defaultValue = '', placeholder, onSubmit, onCancel }) {
           if (e.key === 'Enter') onSubmit(value)
           if (e.key === 'Escape') onCancel()
         }}
-        className="w-full rounded-lg border border-ink-500 bg-ink-900 px-3 py-1.5 text-sm text-ink-100 placeholder:text-ink-600 focus:border-accent focus:outline-none"
+        className="w-full rounded-lg border border-ink-500 bg-ink-900 px-3 py-1.5 text-sm text-ink-100 placeholder:text-ink-400 focus:border-accent focus:outline-none"
       />
       <button
         onClick={() => onSubmit(value)}

@@ -1,5 +1,14 @@
 import { Flame, ShieldCheck } from 'lucide-react'
-import { Card, Checkbox, EmptyState, ErrorNote, ProgressBar, SectionTitle, SkeletonList } from '../components/ui'
+import {
+  Card,
+  Checkbox,
+  EmptyState,
+  ErrorNote,
+  PageHeader,
+  ProgressBar,
+  SectionTitle,
+  SkeletonList,
+} from '../components/ui'
 import EditableList from '../components/EditableList'
 import { useToast } from '../components/Toast'
 import { useEditMode, useHabits } from '../lib/hooks'
@@ -24,10 +33,19 @@ export default function Habits() {
     }
   }
 
-  if (habits.error) return <ErrorNote error={habits.error} onRetry={habits.refresh} />
+  if (habits.error) {
+    return (
+      <div className="space-y-8">
+        <PageHeader />
+        <ErrorNote error={habits.error} onRetry={habits.refresh} />
+      </div>
+    )
+  }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      <PageHeader />
+
       <StreakStrip habits={habits} />
 
       {SECTIONS.map(({ key, title, note }) => {
@@ -69,7 +87,7 @@ export default function Habits() {
                   )}
                 />
                 <div className="border-t border-ink-700 px-4 py-2.5">
-                  <p className="text-[11px] text-ink-500">{note}</p>
+                  <p className="text-[11px] text-ink-400">{note}</p>
                 </div>
               </Card>
             ) : (
@@ -143,7 +161,7 @@ function StreakStrip({ habits }) {
           return (
             <div key={date} className="flex flex-col items-center gap-1.5">
               <span
-                className={`text-[10px] uppercase tracking-wide ${isToday ? 'text-accent' : 'text-ink-500'}`}
+                className={`text-[10px] uppercase tracking-wide ${isToday ? 'text-accent' : 'text-ink-400'}`}
               >
                 {label}
               </span>
@@ -151,12 +169,12 @@ function StreakStrip({ habits }) {
                 className={[
                   'flex h-8 w-full items-center justify-center rounded-lg border text-[11px] font-medium',
                   isFuture
-                    ? 'border-ink-600 text-ink-600'
+                    ? 'border-ink-600 text-ink-500'
                     : ratio === 1
                       ? 'border-accent bg-accent text-on-accent'
                       : ratio > 0
                         ? 'border-accent-line bg-accent-soft text-accent'
-                        : 'border-ink-600 text-ink-500',
+                        : 'border-ink-600 bg-ink-700/60 text-ink-400',
                 ].join(' ')}
                 title={`${Math.round(ratio * 100)}% of daily habits`}
               >

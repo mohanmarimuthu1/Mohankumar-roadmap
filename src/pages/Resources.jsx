@@ -6,6 +6,7 @@ import {
   EmptyState,
   ErrorNote,
   Modal,
+  PageHeader,
   SectionTitle,
   SkeletonList,
 } from '../components/ui'
@@ -53,19 +54,36 @@ export default function Resources() {
     }
   }
 
-  if (error) return <ErrorNote error={error} onRetry={refresh} />
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-ink-300">
-          {resources.length} links · {grouped.length} categories
-        </p>
+  const header = (
+    <PageHeader
+      description={
+        loading
+          ? undefined
+          : `${resources.length} link${resources.length === 1 ? '' : 's'} across ${grouped.length} ${
+              grouped.length === 1 ? 'category' : 'categories'
+            }`
+      }
+      actions={
         <Button variant="primary" onClick={() => setEditing({})}>
           <Plus size={15} />
           Add
         </Button>
+      }
+    />
+  )
+
+  if (error) {
+    return (
+      <div className="space-y-8">
+        {header}
+        <ErrorNote error={error} onRetry={refresh} />
       </div>
+    )
+  }
+
+  return (
+    <div className="space-y-8">
+      {header}
 
       {loading ? (
         <SkeletonList rows={6} className="h-14" />
@@ -88,11 +106,11 @@ export default function Resources() {
                       href={resource.url}
                       target="_blank"
                       rel="noreferrer noopener"
-                      className="flex min-w-0 flex-1 items-center gap-3 px-4 py-3 transition-colors hover:bg-ink-700/40"
+                      className="flex min-w-0 flex-1 items-center gap-3 px-4 py-3 transition-colors hover:bg-ink-700"
                     >
                       <span className="min-w-0 flex-1">
                         <span className="block truncate text-sm text-ink-100">{resource.name}</span>
-                        <span className="mt-0.5 block truncate text-xs text-ink-500">
+                        <span className="mt-0.5 block truncate text-xs text-ink-400">
                           {hostOf(resource.url)}
                         </span>
                       </span>
@@ -119,7 +137,7 @@ export default function Resources() {
       )}
 
       {!editMode && !loading ? (
-        <p className="text-center text-xs text-ink-500">
+        <p className="text-center text-xs text-ink-400">
           Turn on edit mode in Settings to rename or delete links.
         </p>
       ) : null}
@@ -131,8 +149,7 @@ export default function Resources() {
         onClose={() => setEditing(null)}
         onSave={saveResource}
       />
-
-   </div>
+    </div>
   )
 }
 
@@ -201,7 +218,7 @@ function ResourceModal({ resource, categories, busy, onClose, onSave }) {
             value={form.category}
             onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
             placeholder="DSA"
-            className="w-full rounded-lg border border-ink-500 bg-ink-900 px-3 py-2 text-sm text-ink-100 placeholder:text-ink-600 focus:border-accent focus:outline-none"
+            className="w-full rounded-lg border border-ink-500 bg-ink-900 px-3 py-2 text-sm text-ink-100 placeholder:text-ink-400 focus:border-accent focus:outline-none"
           />
           <datalist id="resource-categories">
             {categories.map((c) => (
@@ -225,7 +242,7 @@ function Field({ label, value, onChange, placeholder, type = 'text' }) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full rounded-lg border border-ink-500 bg-ink-900 px-3 py-2 text-sm text-ink-100 placeholder:text-ink-600 focus:border-accent focus:outline-none"
+        className="w-full rounded-lg border border-ink-500 bg-ink-900 px-3 py-2 text-sm text-ink-100 placeholder:text-ink-400 focus:border-accent focus:outline-none"
       />
     </div>
   )

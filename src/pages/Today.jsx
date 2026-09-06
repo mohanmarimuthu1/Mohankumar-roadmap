@@ -1,7 +1,18 @@
 import { Link } from 'react-router-dom'
-import { Flame, ArrowUpRight, Radio, ChevronRight } from 'lucide-react'
+import { ArrowUpRight, ChevronRight, Radio } from 'lucide-react'
 import Ring from '../components/Ring'
-import { Card, Checkbox, EmptyState, ErrorNote, ProgressBar, SectionTitle, Skeleton, SkeletonList } from '../components/ui'
+import {
+  Card,
+  Checkbox,
+  EmptyState,
+  ErrorNote,
+  Metric,
+  PageHeader,
+  ProgressBar,
+  SectionTitle,
+  Skeleton,
+  SkeletonList,
+} from '../components/ui'
 import { useToast } from '../components/Toast'
 import { useHabits, useRoadmap, useTopNews } from '../lib/hooks'
 import { formatLongDate, formatRelative } from '../lib/dates'
@@ -22,41 +33,34 @@ export default function Today() {
 
   const phase = roadmap.stats.currentPhase
   const phaseStat = phase ? roadmap.stats.perPhase[phase.id] : null
+  const daily = habits.dailyProgress
+  const dayComplete = daily.total > 0 && daily.done === daily.total
 
   return (
-    <div className="space-y-6">
-      {/* ------------------------------------------------------ hero stats */}
-      <section className="flex items-center gap-5">
+    <div className="space-y-8">
+      <PageHeader title={dayComplete ? 'Day complete' : 'Today'} description={formatLongDate()} />
+
+      {/* --------------------------------------------------------- overview */}
+      <Card className="flex items-center gap-5 p-5">
         {roadmap.loading ? (
-          <Skeleton className="h-[112px] w-[112px] rounded-full" />
+          <Skeleton className="h-24 w-24 shrink-0 rounded-full" />
         ) : (
-          <Ring value={roadmap.stats.ratio} size={112} sublabel="complete" />
+          <Ring value={roadmap.stats.ratio} size={96} sublabel="complete" />
         )}
 
-        <div className="min-w-0 flex-1">
-          <p className="text-xs uppercase tracking-[0.12em] text-ink-400">
-            {formatLongDate()}
-          </p>
-          <h1 className="mt-1 font-display text-2xl font-semibold tracking-tight text-ink-50">
-            {habits.dailyProgress.done === habits.dailyProgress.total && habits.dailyProgress.total > 0
-              ? 'Day complete'
-              : 'Today'}
-          </h1>
-          <div className="mt-2.5 flex items-center gap-2 text-sm">
-            <Flame size={15} className={habits.streak > 0 ? 'text-accent' : 'text-ink-400'} />
-            <span className="text-ink-100">
-              {habits.loading ? '—' : habits.streak}
-              <span className="ml-1 text-ink-300">
-                day{habits.streak === 1 ? '' : 's'} streak
+        <div className="grid min-w-0 flex-1 grid-cols-2 gap-x-4 gap-y-4 sm:grid-cols-3">
+          <Metric
+            value={
+              <span className={habits.streak > 0 ? 'text-accent' : undefined}>
+                {habits.loading ? '—' : habits.streak}
               </span>
-            </span>
-            <span className="text-ink-500">·</span>
-            <span className="text-ink-300">
-              {roadmap.stats.done}/{roadmap.stats.total} tasks
-            </span>
-          </div>
+            }
+            label={`day${habits.streak === 1 ? '' : 's'} streak`}
+          />
+          <Metric value={`${daily.done}/${daily.total}`} label="habits today" />
+          <Metric value={`${roadmap.stats.done}/${roadmap.stats.total}`} label="roadmap tasks" />
         </div>
-      </section>
+      </Card>
 
       {/* ---------------------------------------------------- current phase */}
       <section>
@@ -74,7 +78,7 @@ export default function Today() {
                   <p className="truncate font-display text-base font-semibold text-ink-50">
                     {phase.name} {phase.tag}
                   </p>
-                  <p className="mt-0.5 text-xs text-ink-300">{phase.weeks}</p>
+                  <p className="mt-0.5 text-xs text-ink-400">{phase.weeks}</p>
                 </div>
                 <ChevronRight size={16} className="mt-1 shrink-0 text-ink-400" />
               </div>
@@ -96,7 +100,7 @@ export default function Today() {
         <SectionTitle
           action={
             <span className="font-display text-xs text-ink-300">
-              {habits.dailyProgress.done}/{habits.dailyProgress.total}
+              {daily.done}/{daily.total}
             </span>
           }
         >
@@ -128,7 +132,7 @@ export default function Today() {
       <section>
         <SectionTitle
           action={
-            <Link to="/live" className="text-xs text-accent hover:underline">
+            <Link to="/live" className="text-xs font-medium text-accent hover:underline">
               All feeds
             </Link>
           }
@@ -146,7 +150,7 @@ export default function Today() {
                 href={item.link}
                 target="_blank"
                 rel="noreferrer noopener"
-                className="flex items-start gap-3 px-4 py-3 transition-colors hover:bg-ink-700/50"
+                className="flex items-start gap-3 px-4 py-3 transition-colors first:rounded-t-2xl last:rounded-b-2xl hover:bg-ink-700"
               >
                 <div className="min-w-0 flex-1">
                   <p className="line-clamp-2 text-sm leading-snug text-ink-100">{item.title}</p>
@@ -161,7 +165,7 @@ export default function Today() {
         ) : (
           <Card className="flex items-center gap-3 px-4 py-5">
             <Radio size={16} className="shrink-0 text-ink-400" />
-            <p className="text-sm text-ink-300">
+            <p className="text-sm leading-relaxed text-ink-300">
               No articles yet — hit refresh on the{' '}
               <Link to="/live" className="text-accent hover:underline">
                 Live

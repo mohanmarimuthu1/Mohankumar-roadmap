@@ -7,6 +7,7 @@ import {
   EmptyState,
   ErrorNote,
   Modal,
+  PageHeader,
   ProgressBar,
   Skeleton,
 } from '../components/ui'
@@ -45,30 +46,45 @@ export default function Roadmap() {
 
   if (loading) {
     return (
-      <div className="space-y-3">
-        {Array.from({ length: 7 }, (_, i) => (
-          <Skeleton key={i} className="h-20" />
-        ))}
+      <div className="space-y-8">
+        <PageHeader />
+        <div className="space-y-3">
+          {Array.from({ length: 7 }, (_, i) => (
+            <Skeleton key={i} className="h-20" />
+          ))}
+        </div>
       </div>
     )
   }
 
-  if (error) return <ErrorNote error={error} onRetry={refresh} />
-  if (!phases.length) return <EmptyState>No phases yet.</EmptyState>
+  if (error || !phases.length) {
+    return (
+      <div className="space-y-8">
+        <PageHeader />
+        {error ? (
+          <ErrorNote error={error} onRetry={refresh} />
+        ) : (
+          <EmptyState>No phases yet.</EmptyState>
+        )}
+      </div>
+    )
+  }
 
   return (
-    <div className="space-y-6">
-      <section className="flex items-center gap-4">
-        <div className="flex-1">
+    <div className="space-y-8">
+      <PageHeader />
+
+      <Card className="flex items-center gap-4 p-5">
+        <div className="min-w-0 flex-1">
           <p className="font-display text-sm font-semibold text-ink-50">
-            {stats.done} of {stats.total} tasks
+            {stats.done} of {stats.total} tasks done
           </p>
-          <ProgressBar value={stats.ratio} className="mt-2" />
+          <ProgressBar value={stats.ratio} className="mt-2.5" />
         </div>
-        <span className="font-display text-2xl font-semibold text-accent">
+        <span className="shrink-0 font-display text-2xl font-semibold text-accent">
           {Math.round(stats.ratio * 100)}%
         </span>
-      </section>
+      </Card>
 
       <div className="space-y-3">
         <EditableList
@@ -163,7 +179,7 @@ export default function Roadmap() {
                                 aria-label={`Notes for ${task.label}`}
                                 className={[
                                   'mt-0.5 shrink-0 rounded-lg p-1.5 transition-colors hover:bg-ink-700',
-                                  task.notes ? 'text-accent' : 'text-ink-500 hover:text-ink-200',
+                                  task.notes ? 'text-accent' : 'text-ink-400 hover:text-ink-100',
                                 ].join(' ')}
                               >
                                 <StickyNote size={14} />
@@ -235,7 +251,7 @@ function NotesModal({ task, onClose, onSave }) {
         rows={7}
         autoFocus
         placeholder="Notes, links, blockers…"
-        className="w-full resize-none rounded-xl border border-ink-500 bg-ink-900 px-3.5 py-3 text-sm leading-relaxed text-ink-100 placeholder:text-ink-500 focus:border-accent focus:outline-none"
+        className="w-full resize-none rounded-xl border border-ink-500 bg-ink-900 px-3.5 py-3 text-sm leading-relaxed text-ink-100 placeholder:text-ink-400 focus:border-accent focus:outline-none"
       />
     </Modal>
   )
