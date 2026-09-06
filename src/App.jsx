@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { Loader2, AlertTriangle } from 'lucide-react'
 import { AuthProvider, EditModeProvider, useAuth, useSeedGate } from './lib/hooks'
+import { ThemeProvider } from './lib/theme'
 import { ToastProvider } from './components/Toast'
 import { Button } from './components/ui'
 import Auth from './components/Auth'
@@ -73,27 +74,29 @@ function Protected({ children }) {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <ToastProvider>
-        <EditModeProvider>
-          <Protected>
-            <Routes>
-              <Route element={<Layout />}>
-                <Route index element={<Navigate to="/today" replace />} />
-                <Route path="/today" element={<Today />} />
-                <Route path="/roadmap" element={<Roadmap />} />
-                <Route path="/live" element={<Live />} />
-                <Route path="/gym" element={<Gym />} />
-                <Route path="/habits" element={<Habits />} />
-                <Route path="/neu" element={<NEU />} />
-                <Route path="/resources" element={<Resources />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="*" element={<Navigate to="/today" replace />} />
-              </Route>
-            </Routes>
-          </Protected>
-        </EditModeProvider>
-      </ToastProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <ToastProvider>
+          <EditModeProvider>
+            <Protected>
+              <Routes>
+                <Route element={<Layout />}>
+                  <Route index element={<Navigate to="/today" replace />} />
+                  <Route path="/today" element={<Today />} />
+                  <Route path="/roadmap" element={<Roadmap />} />
+                  <Route path="/live" element={<Live />} />
+                  <Route path="/gym" element={<Gym />} />
+                  <Route path="/habits" element={<Habits />} />
+                  <Route path="/neu" element={<NEU />} />
+                  <Route path="/resources" element={<Resources />} />
+                  <Route path="/settings" element={<Settings />} />
+                  <Route path="*" element={<Navigate to="/today" replace />} />
+                </Route>
+              </Routes>
+            </Protected>
+          </EditModeProvider>
+        </ToastProvider>
+      </AuthProvider>
+    </ThemeProvider>
   )
 }

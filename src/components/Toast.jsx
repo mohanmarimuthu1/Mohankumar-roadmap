@@ -50,7 +50,7 @@ export function ToastProvider({ children }) {
             <div
               key={id}
               role="status"
-              className="toast-in pointer-events-auto flex w-full max-w-sm items-center gap-3 rounded-xl border border-ink-500 bg-ink-700 px-4 py-3 shadow-lg shadow-black/40"
+              className="toast-in pointer-events-auto flex w-full max-w-sm items-center gap-3 rounded-xl border border-ink-500 bg-ink-700 px-4 py-3 shadow-soft"
             >
               <Icon
                 size={16}

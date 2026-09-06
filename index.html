@@ -1,11 +1,33 @@
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#0A0A0B" />
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <title>Mohan Roadmap</title>
+
+    <!--
+      Theme is applied before first paint so a reload never flashes the wrong
+      palette. Kept in sync with src/lib/theme.jsx (same key, same values).
+    -->
+    <script>
+      ;(function () {
+        try {
+          var pref = localStorage.getItem('roadmap:theme') || 'system'
+          var dark =
+            pref === 'dark' ||
+            (pref !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+          document.documentElement.classList.toggle('dark', dark)
+          document.documentElement.style.colorScheme = dark ? 'dark' : 'light'
+          document
+            .querySelector('meta[name="theme-color"]')
+            .setAttribute('content', dark ? '#0A0A0B' : '#F7F8F9')
+        } catch (e) {
+          /* private mode -- fall through to the light default */
+        }
+      })()
+    </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -16,34 +38,44 @@
 
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     <script>
+      /*
+       * Every colour is a CSS variable holding an "R G B" triple, so the whole
+       * palette swaps when `.dark` is toggled on <html> -- no component needs
+       * to know which theme is active. Values live in src/index.css.
+       *
+       * The `ink` ramp is semantic, not literal: 900 is always the page
+       * background and 50 is always the strongest text, in both themes.
+       */
       tailwind.config = {
         darkMode: 'class',
         theme: {
           extend: {
             colors: {
               accent: {
-                DEFAULT: '#F2A93B',
-                soft: 'rgba(242, 169, 59, 0.12)',
-                line: 'rgba(242, 169, 59, 0.28)',
+                DEFAULT: 'rgb(var(--accent) / <alpha-value>)',
+                soft: 'rgb(var(--accent) / 0.12)',
+                line: 'rgb(var(--accent) / 0.28)',
               },
+              'on-accent': 'rgb(var(--on-accent) / <alpha-value>)',
+              scrim: 'rgb(var(--scrim) / 0.55)',
               ink: {
-                900: '#0A0A0B',
-                800: '#111113',
-                700: '#17171A',
-                600: '#1F1F23',
-                500: '#2A2A2F',
-                400: '#3A3A41',
-                300: '#6B6B75',
-                200: '#9A9AA3',
-                100: '#D4D4D8',
-                50: '#F4F4F5',
+                900: 'rgb(var(--ink-900) / <alpha-value>)',
+                800: 'rgb(var(--ink-800) / <alpha-value>)',
+                700: 'rgb(var(--ink-700) / <alpha-value>)',
+                600: 'rgb(var(--ink-600) / <alpha-value>)',
+                500: 'rgb(var(--ink-500) / <alpha-value>)',
+                400: 'rgb(var(--ink-400) / <alpha-value>)',
+                300: 'rgb(var(--ink-300) / <alpha-value>)',
+                200: 'rgb(var(--ink-200) / <alpha-value>)',
+                100: 'rgb(var(--ink-100) / <alpha-value>)',
+                50: 'rgb(var(--ink-50) / <alpha-value>)',
               },
             },
             fontFamily: {
               display: ['"Space Grotesk"', 'system-ui', 'sans-serif'],
               sans: ['Inter', 'system-ui', 'sans-serif'],
             },
-            screens: { sm: '640px', lg: '1024px' },
+            screens: { sm: '640px', md: '768px', lg: '1024px' },
           },
         },
       }

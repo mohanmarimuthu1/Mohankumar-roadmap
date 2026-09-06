@@ -153,7 +153,7 @@ function StreakStrip({ habits }) {
                   isFuture
                     ? 'border-ink-600 text-ink-600'
                     : ratio === 1
-                      ? 'border-accent bg-accent text-ink-900'
+                      ? 'border-accent bg-accent text-on-accent'
                       : ratio > 0
                         ? 'border-accent-line bg-accent-soft text-accent'
                         : 'border-ink-600 text-ink-500',

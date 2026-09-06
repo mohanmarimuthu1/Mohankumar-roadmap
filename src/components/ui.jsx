@@ -84,7 +84,7 @@ export function Checkbox({ checked, onChange, label, sublabel, className = '' })
         className={[
           'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-colors',
           checked
-            ? 'border-accent bg-accent text-ink-900'
+            ? 'border-accent bg-accent text-on-accent'
             : 'border-ink-400 text-transparent group-hover:border-ink-300',
         ].join(' ')}
       >
@@ -119,7 +119,7 @@ export function ProgressBar({ value = 0, className = '' }) {
 
 export function Button({ variant = 'ghost', className = '', children, ...rest }) {
   const styles = {
-    primary: 'bg-accent text-ink-900 hover:opacity-90',
+    primary: 'bg-accent text-on-accent hover:opacity-90',
     ghost: 'border border-ink-500 text-ink-200 hover:bg-ink-700 hover:text-ink-100',
     danger: 'border border-ink-500 text-ink-100 hover:border-accent hover:text-accent',
   }[variant]
@@ -152,7 +152,7 @@ export function Modal({ open, onClose, title, children, footer }) {
   if (!open) return null
 
   return (
-    <div className="fade-in fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-0 backdrop-blur-sm sm:items-center sm:p-6">
+    <div className="fade-in fixed inset-0 z-50 flex items-end justify-center bg-scrim p-0 backdrop-blur-sm sm:items-center sm:p-6">
       <div
         className="absolute inset-0"
         onClick={onClose}

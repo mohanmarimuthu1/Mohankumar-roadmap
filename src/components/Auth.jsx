@@ -39,7 +39,7 @@ export default function Auth() {
           <button
             onClick={handleSignIn}
             disabled={busy}
-            className="flex w-full items-center justify-center gap-2.5 rounded-xl bg-accent px-4 py-3.5 font-medium text-ink-900 transition-opacity hover:opacity-90 disabled:opacity-60"
+            className="flex w-full items-center justify-center gap-2.5 rounded-xl bg-accent px-4 py-3.5 font-medium text-on-accent transition-opacity hover:opacity-90 disabled:opacity-60"
           >
             {busy ? <Loader2 size={18} className="animate-spin" /> : <LogIn size={18} />}
             {busy ? 'Redirecting…' : 'Continue with Google'}

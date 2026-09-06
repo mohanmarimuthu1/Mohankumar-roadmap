@@ -12,6 +12,7 @@ import {
   Compass,
 } from 'lucide-react'
 import { useAuth } from '../lib/hooks'
+import { ThemeToggle } from './ThemeToggle'
 
 export const TABS = [
   { to: '/today', label: 'Today', icon: CalendarCheck },
@@ -59,7 +60,8 @@ export default function Layout() {
             ))}
           </nav>
 
-          <div className="ml-auto flex items-center gap-2 lg:ml-0">
+          <div className="ml-auto flex items-center gap-1 lg:ml-0">
+            <ThemeToggle />
             {user?.user_metadata?.avatar_url ? (
               <img
                 src={user.user_metadata.avatar_url}

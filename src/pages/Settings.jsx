@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
-import { Download, LogOut, Pencil, RotateCcw, Upload } from 'lucide-react'
+import { Download, LogOut, Palette, Pencil, RotateCcw, Upload } from 'lucide-react'
 import { Button, Card, ConfirmModal, SectionTitle } from '../components/ui'
+import { ThemePicker } from '../components/ThemeToggle'
 import { useToast } from '../components/Toast'
 import { useAuth, useEditMode } from '../lib/hooks'
 import { exportAll, downloadJson, importAll } from '../lib/backup'
@@ -92,6 +93,23 @@ export default function Settings() {
               {user?.user_metadata?.full_name ?? 'Signed in'}
             </p>
             <p className="truncate text-xs text-ink-400">{user?.email}</p>
+          </div>
+        </Card>
+      </section>
+
+      {/* ---------------------------------------------------------- appearance */}
+      <section>
+        <SectionTitle>Appearance</SectionTitle>
+        <Card className="p-4">
+          <div className="flex flex-wrap items-center gap-3">
+            <Palette size={16} className="shrink-0 text-ink-400" />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm text-ink-100">Theme</p>
+              <p className="mt-0.5 text-xs leading-relaxed text-ink-400">
+                System follows your device&apos;s light/dark setting.
+              </p>
+            </div>
+            <ThemePicker />
           </div>
         </Card>
       </section>
@@ -222,7 +240,7 @@ function Toggle({ checked, onChange, label }) {
     >
       <span
         className={[
-          'absolute top-0.5 h-5 w-5 rounded-full bg-ink-900 transition-transform',
+          'absolute top-0.5 h-5 w-5 rounded-full bg-ink-800 transition-transform',
           checked ? 'translate-x-[1.375rem]' : 'translate-x-0.5',
         ].join(' ')}
       />

@@ -1,11 +1,55 @@
 /*
  * Tailwind itself is loaded from the CDN in index.html (per plan: no PostCSS setup).
- * This file holds the base layer + the few primitives Tailwind utilities can't express.
+ * This file owns the two palettes and the few primitives Tailwind utilities
+ * cannot express.
+ *
+ * Palette contract: every colour is an "R G B" triple so Tailwind can apply its
+ * own alpha (`bg-ink-800/60`). The `ink` ramp is semantic and inverts between
+ * themes -- 900 is always the page background, 50 is always the strongest text.
  */
 
 :root {
+  /* ---------------------------------------------------------- light theme */
+  --ink-900: 247 248 249; /* page background   */
+  --ink-800: 255 255 255; /* card surface      */
+  --ink-700: 240 241 243; /* hover fill, hairline divider */
+  --ink-600: 227 229 233; /* card border       */
+  --ink-500: 207 211 217; /* strong border     */
+  --ink-400: 139 146 155; /* muted text, icons */
+  --ink-300: 92 99 109; /* secondary text    */
+  --ink-200: 62 68 76; /* body text         */
+  --ink-100: 34 39 46; /* primary text      */
+  --ink-50: 14 17 22; /* headings          */
+
+  --accent: 180 83 9; /* #B45309 -- readable amber on light surfaces */
+  --on-accent: 255 255 255;
+  --scrim: 15 18 22;
+
+  --shadow-soft: 0 8px 24px -6px rgb(15 18 22 / 0.14), 0 2px 6px -2px rgb(15 18 22 / 0.08);
+
+  color-scheme: light;
+}
+
+.dark {
+  /* ----------------------------------------------------------- dark theme */
+  --ink-900: 10 10 11;
+  --ink-800: 17 17 19;
+  --ink-700: 23 23 26;
+  --ink-600: 31 31 35;
+  --ink-500: 42 42 47;
+  --ink-400: 58 58 65;
+  --ink-300: 107 107 117;
+  --ink-200: 154 154 163;
+  --ink-100: 212 212 216;
+  --ink-50: 244 244 245;
+
+  --accent: 242 169 59; /* #F2A93B */
+  --on-accent: 10 10 11;
+  --scrim: 0 0 0;
+
+  --shadow-soft: 0 10px 30px -8px rgb(0 0 0 / 0.6), 0 2px 8px -2px rgb(0 0 0 / 0.4);
+
   color-scheme: dark;
-  --accent: #f2a93b;
 }
 
 * {
@@ -21,6 +65,20 @@ body,
 body {
   margin: 0;
   overscroll-behavior-y: none;
+  background: rgb(var(--ink-900));
+  color: rgb(var(--ink-100));
+}
+
+/* Repainting the whole palette on a theme flip looks better as a short fade
+   than as a hard cut, but only for the surfaces -- not for every element. */
+body,
+header,
+nav,
+aside,
+main {
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease;
 }
 
 /* Nav / safe areas for iOS standalone PWA */
@@ -31,17 +89,22 @@ body {
   padding-top: env(safe-area-inset-top, 0px);
 }
 
-/* Scrollbars: thin, grayscale, out of the way */
+/* Elevation that reads correctly in both themes */
+.shadow-soft {
+  box-shadow: var(--shadow-soft);
+}
+
+/* Scrollbars: thin, themed, out of the way */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #3a3a41 transparent;
+  scrollbar-color: rgb(var(--ink-500)) transparent;
 }
 *::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 *::-webkit-scrollbar-thumb {
-  background: #3a3a41;
+  background: rgb(var(--ink-500));
   border-radius: 999px;
 }
 *::-webkit-scrollbar-track {
@@ -60,16 +123,16 @@ body {
 @keyframes skeleton-pulse {
   0%,
   100% {
-    opacity: 0.45;
+    opacity: 0.7;
   }
   50% {
-    opacity: 0.15;
+    opacity: 0.3;
   }
 }
 .skeleton {
   animation: skeleton-pulse 1.4s ease-in-out infinite;
-  background: #1f1f23;
-  border-radius: 0.5rem;
+  background: rgb(var(--ink-700));
+  border-radius: 0.75rem;
 }
 
 @keyframes toast-in {
@@ -100,7 +163,7 @@ body {
 
 /* Focus ring, single accent colour */
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid rgb(var(--accent));
   outline-offset: 2px;
 }
 

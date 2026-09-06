@@ -1,5 +1,8 @@
 /**
- * Progress ring. `value` is 0–1.
+ * Progress ring. `value` is 0-1.
+ *
+ * Track and bar are painted with Tailwind `stroke-*` utilities rather than
+ * literal hex so the ring follows the active theme.
  */
 export default function Ring({ value = 0, size = 120, stroke = 8, label, sublabel }) {
   const clamped = Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : 0
@@ -7,14 +10,17 @@ export default function Ring({ value = 0, size = 120, stroke = 8, label, sublabe
   const circumference = 2 * Math.PI * radius
 
   return (
-    <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
+    <div
+      className="relative inline-flex items-center justify-center"
+      style={{ width: size, height: size }}
+    >
       <svg width={size} height={size} className="-rotate-90" aria-hidden="true">
         <circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="#1F1F23"
+          className="stroke-ink-600"
           strokeWidth={stroke}
         />
         <circle
@@ -22,7 +28,7 @@ export default function Ring({ value = 0, size = 120, stroke = 8, label, sublabe
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="#F2A93B"
+          className="stroke-accent"
           strokeWidth={stroke}
           strokeLinecap="round"
           strokeDasharray={circumference}
