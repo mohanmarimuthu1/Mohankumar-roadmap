@@ -68,6 +68,46 @@ export async function get(url, config = {}, { retries = 2, backoffMs = 1500 } = 
   throw new Error(status ? `HTTP ${status} from ${url}` : `${lastError.message} (${url})`)
 }
 
+/**
+ * Same retry behaviour as `get()`, but over Node's native `fetch` instead of
+ * the shared axios instance. arXiv's front end occasionally 406s a request
+ * that shares a connection pool / TLS session cache with other in-flight
+ * axios requests -- reproducible every time arXiv is fetched alongside the
+ * other eight sources, never when it runs alone. `fetch` (undici) keeps its
+ * own separate pool, which sidesteps the problem instead of explaining it.
+ */
+export async function getText(url, { retries = 2, backoffMs = 1500 } = {}) {
+  const timeoutMs = Number(process.env.HTTP_TIMEOUT_MS ?? 20_000)
+  let lastError
+
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), timeoutMs)
+
+    try {
+      const response = await fetch(url, {
+        headers: { 'user-agent': USER_AGENT, accept: '*/*' },
+        signal: controller.signal,
+      })
+      if (!response.ok) throw Object.assign(new Error(`HTTP ${response.status}`), { status: response.status })
+      return await response.text()
+    } catch (error) {
+      lastError = error
+      const status = error.status
+      const retryable = status === undefined || status === 429 || status >= 500
+      if (!retryable || attempt === retries) break
+
+      const wait = backoffMs * 2 ** attempt
+      log.debug('retrying request', { url, status: status ?? 'network', attempt: attempt + 1, wait })
+      await sleep(wait)
+    } finally {
+      clearTimeout(timer)
+    }
+  }
+
+  throw new Error(lastError.status ? `HTTP ${lastError.status} from ${url}` : `${lastError.message} (${url})`)
+}
+
 /* ----------------------------------------------------------------- text */
 
 export function stripHtml(text = '') {

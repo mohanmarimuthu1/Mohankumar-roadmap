@@ -4,7 +4,7 @@
 // authors are repeated elements and the abstract lives in <summary>. A small
 // hand-rolled reader over <entry> blocks keeps every field we want.
 
-import { get, stripHtml, clip, toIso, PER_SOURCE_LIMIT } from '../util.js'
+import { getText, stripHtml, clip, toIso, PER_SOURCE_LIMIT } from '../util.js'
 
 const SOURCE = 'arXiv'
 
@@ -12,7 +12,7 @@ const SOURCE = 'arXiv'
 // and letting a query serialiser re-encode it tends to break the OR.
 function endpoint(limit) {
   return (
-    'http://export.arxiv.org/api/query' +
+    'https://export.arxiv.org/api/query' +
     '?search_query=cat:cs.CL+OR+cat:cs.LG' +
     '&sortBy=submittedDate&sortOrder=descending' +
     `&max_results=${limit}`
@@ -33,8 +33,7 @@ function attr(fragment, name) {
 }
 
 export async function fetchArxiv({ limit = PER_SOURCE_LIMIT } = {}) {
-  const { data } = await get(endpoint(limit), { responseType: 'text' })
-  const xml = String(data)
+  const xml = await getText(endpoint(limit))
   const entries = xml.match(/<entry\b[\s\S]*?<\/entry>/gi) ?? []
 
   return entries.slice(0, limit).map((entry) => {
