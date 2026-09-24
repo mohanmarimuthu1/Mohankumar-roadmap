@@ -1,29 +1,22 @@
 import { useState } from 'react'
 import { ArrowUpRight, RefreshCw } from 'lucide-react'
 import { Card, EmptyState, ErrorNote, PageHeader, SkeletonList } from '../components/ui'
-import { useToast } from '../components/Toast'
 import { LIVE_CATEGORIES, useNews } from '../lib/hooks'
-import { supabase } from '../lib/supabase'
 import { formatRelative } from '../lib/dates'
 
 export default function Live() {
   const [category, setCategory] = useState('news')
   const { articles, loading, error, refresh } = useNews(category)
   const [refreshing, setRefreshing] = useState(false)
-  const toast = useToast()
 
-  async function triggerRefetch() {
+  // The actual fetching happens on a schedule (GitHub Actions, every 30
+  // minutes, see worker/README.md) and writes straight to Supabase. This
+  // button just re-reads what's already there — there's no on-demand fetch
+  // path from the browser, since that would need the service role key.
+  async function reload() {
     setRefreshing(true)
     try {
-      const { data, error: err } = await supabase.functions.invoke('refresh-feeds')
-      if (err) throw new Error(err.message)
       await refresh()
-      toast(data?.inserted != null ? `${data.inserted} new items` : 'Feeds refreshed')
-    } catch (err) {
-      // The realtime subscription still keeps the list fresh if the function
-      // is not deployed yet, so this is a soft failure.
-      await refresh()
-      toast(`Refetch failed: ${err.message}`, 'error')
     } finally {
       setRefreshing(false)
     }
@@ -34,10 +27,10 @@ export default function Live() {
       <PageHeader
         actions={
           <button
-            onClick={triggerRefetch}
+            onClick={reload}
             disabled={refreshing}
-            aria-label="Refresh feeds"
-            title="Refresh feeds"
+            aria-label="Reload feeds"
+            title="Reload feeds"
             className="rounded-xl border border-ink-600 p-2.5 text-ink-300 transition-colors hover:bg-ink-700 hover:text-ink-100 disabled:opacity-50"
           >
             <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />
@@ -103,7 +96,9 @@ export default function Live() {
         </EmptyState>
       )}
 
-      <p className="text-center text-[11px] text-ink-400">Auto-refreshes every 5 minutes</p>
+      <p className="text-center text-[11px] text-ink-400">
+        New items land every 30 minutes · this tab re-checks every 5
+      </p>
     </div>
   )
 }
