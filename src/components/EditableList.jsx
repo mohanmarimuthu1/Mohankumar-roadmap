@@ -17,7 +17,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers'
 import { Check, GripVertical, Pencil, Plus, Trash2, X } from 'lucide-react'
-import { ConfirmModal } from './ui'
+import { Combobox, ConfirmModal } from './ui'
 import { useToast } from './Toast'
 import { useEditMode } from '../lib/hooks'
 import { supabase } from '../lib/supabase'
@@ -38,7 +38,7 @@ export default function EditableList({
   onMutate,
   renderItem,
   addLabel = 'Add item',
-  addListId,
+  addOptions,
   itemClassName = '',
   renameInline = true,
   allowAdd = true,
@@ -170,7 +170,7 @@ export default function EditableList({
 
       {!allowAdd ? null : adding ? (
         <div className={`px-4 py-2.5 ${itemClassName}`}>
-          <InlineInput placeholder={addLabel} listId={addListId} onSubmit={add} onCancel={() => setAdding(false)} />
+          <InlineInput placeholder={addLabel} options={addOptions} onSubmit={add} onCancel={() => setAdding(false)} />
         </div>
       ) : (
         <button
@@ -266,23 +266,36 @@ function SortableRow({
   )
 }
 
-function InlineInput({ defaultValue = '', placeholder, listId, onSubmit, onCancel }) {
+function InlineInput({ defaultValue = '', placeholder, options, onSubmit, onCancel }) {
   const [value, setValue] = useState(defaultValue)
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') onSubmit(value)
+    if (e.key === 'Escape') onCancel()
+  }
 
   return (
     <div className="flex items-center gap-1.5">
-      <input
-        autoFocus
-        value={value}
-        placeholder={placeholder}
-        list={listId}
-        onChange={(e) => setValue(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') onSubmit(value)
-          if (e.key === 'Escape') onCancel()
-        }}
-        className="w-full rounded-lg border border-ink-500 bg-ink-900 px-3 py-1.5 text-sm text-ink-100 placeholder:text-ink-400 focus:border-accent focus:outline-none"
-      />
+      {options ? (
+        <Combobox
+          autoFocus
+          value={value}
+          onChange={setValue}
+          options={options}
+          placeholder={placeholder}
+          onKeyDown={handleKeyDown}
+          className="py-1.5"
+        />
+      ) : (
+        <input
+          autoFocus
+          value={value}
+          placeholder={placeholder}
+          onChange={(e) => setValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          className="w-full rounded-lg border border-ink-500 bg-ink-900 px-3 py-1.5 text-sm text-ink-100 placeholder:text-ink-400 focus:border-accent focus:outline-none"
+        />
+      )}
       <button
         onClick={() => onSubmit(value)}
         aria-label="Save"
