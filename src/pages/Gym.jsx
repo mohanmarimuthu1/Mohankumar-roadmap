@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ChevronDown, Dumbbell, History, Timer } from 'lucide-react'
+import { ChevronDown, Dumbbell, History, Pencil, Timer } from 'lucide-react'
 import {
   Button,
   Card,
@@ -12,13 +12,17 @@ import {
 } from '../components/ui'
 import EditableList from '../components/EditableList'
 import { useToast } from '../components/Toast'
-import { useGym } from '../lib/hooks'
+import { useEditMode, useGym } from '../lib/hooks'
+import { supabase } from '../lib/supabase'
 import { currentWeekDays, formatRelative, todayKey } from '../lib/dates'
 
 export default function Gym() {
   const gym = useGym()
+  const [editMode] = useEditMode()
   const [openDay, setOpenDay] = useState(null)
   const [activeExercise, setActiveExercise] = useState(null)
+  const [editingDay, setEditingDay] = useState(null)
+  const [editingExercise, setEditingExercise] = useState(null)
   const today = todayKey()
 
   useEffect(() => {
@@ -65,6 +69,7 @@ export default function Gym() {
           items={gym.days}
           table="gym_days"
           labelField="name"
+          renameInline={false}
           onMutate={gym.refresh}
           addLabel="Add training day"
           deleteMessage={(day) =>
@@ -76,25 +81,37 @@ export default function Gym() {
 
           return (
             <Card key={day.id} className={doneToday ? 'border-accent-line' : ''}>
-              <button
-                onClick={() => setOpenDay(isOpen ? null : day.id)}
-                aria-expanded={isOpen}
-                className="flex w-full items-center gap-3 px-4 py-3.5 text-left"
-              >
-                <Dumbbell size={16} className={doneToday ? 'text-accent' : 'text-ink-400'} />
-                <span className="min-w-0 flex-1">
-                  <span className="block font-display text-[15px] font-semibold text-ink-50">
-                    {day.name}
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setOpenDay(isOpen ? null : day.id)}
+                  aria-expanded={isOpen}
+                  className="flex min-w-0 flex-1 items-center gap-3 px-4 py-3.5 text-left"
+                >
+                  <Dumbbell size={16} className={doneToday ? 'text-accent' : 'text-ink-400'} />
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-display text-[15px] font-semibold text-ink-50">
+                      {day.name}
+                    </span>
+                    <span className="mt-0.5 block truncate text-xs text-ink-400">
+                      {day.focus} · {day.exercises.length} exercises
+                    </span>
                   </span>
-                  <span className="mt-0.5 block truncate text-xs text-ink-400">
-                    {day.focus} · {day.exercises.length} exercises
-                  </span>
-                </span>
-                <ChevronDown
-                  size={16}
-                  className={`shrink-0 text-ink-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
-                />
-              </button>
+                  <ChevronDown
+                    size={16}
+                    className={`shrink-0 text-ink-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+                  />
+                </button>
+
+                {editMode ? (
+                  <button
+                    onClick={() => setEditingDay(day)}
+                    aria-label={`Edit ${day.name}`}
+                    className="shrink-0 rounded-lg p-2 text-ink-400 transition-colors hover:bg-ink-700 hover:text-ink-100"
+                  >
+                    <Pencil size={14} />
+                  </button>
+                ) : null}
+              </div>
 
               {isOpen ? (
                 <div className="fade-in border-t border-ink-700">
@@ -102,6 +119,7 @@ export default function Gym() {
                     items={day.exercises}
                     table="exercises"
                     labelField="name"
+                    renameInline={false}
                     newRow={{ day_id: day.id, sets: 3, reps: '8-12', rest_seconds: 60 }}
                     onMutate={gym.refresh}
                     addLabel="Add exercise"
@@ -111,7 +129,9 @@ export default function Gym() {
                         key={exercise.id}
                         exercise={exercise}
                         gym={gym}
+                        editMode={editMode}
                         onOpen={() => setActiveExercise(exercise)}
+                        onEdit={() => setEditingExercise(exercise)}
                       />
                     )}
                   />
@@ -128,17 +148,29 @@ export default function Gym() {
         gym={gym}
         onClose={() => setActiveExercise(null)}
       />
+
+      <DayModal
+        day={editingDay}
+        onClose={() => setEditingDay(null)}
+        onSaved={gym.refresh}
+      />
+
+      <ExerciseModal
+        exercise={editingExercise}
+        onClose={() => setEditingExercise(null)}
+        onSaved={gym.refresh}
+      />
     </div>
   )
 }
 
-function ExerciseRow({ exercise, gym, onOpen }) {
+function ExerciseRow({ exercise, gym, editMode, onOpen, onEdit }) {
   const todaySets = gym.setsFor(exercise.id)
   const last = gym.lastSessionFor(exercise.id)
 
   return (
-    <div className="border-b border-ink-700 last:border-b-0">
-      <button onClick={onOpen} className="w-full px-4 py-3 text-left transition-colors hover:bg-ink-700">
+    <div className="flex items-start gap-1 border-b border-ink-700 last:border-b-0">
+      <button onClick={onOpen} className="w-full min-w-0 flex-1 px-4 py-3 text-left transition-colors hover:bg-ink-700">
         <div className="flex items-start gap-3">
           <div className="min-w-0 flex-1">
             <p className="text-sm font-medium text-ink-100">{exercise.name}</p>
@@ -170,6 +202,16 @@ function ExerciseRow({ exercise, gym, onOpen }) {
           </div>
         </div>
       </button>
+
+      {editMode ? (
+        <button
+          onClick={onEdit}
+          aria-label={`Edit ${exercise.name}`}
+          className="mt-3 shrink-0 rounded-lg p-2 text-ink-400 transition-colors hover:bg-ink-700 hover:text-ink-100"
+        >
+          <Pencil size={14} />
+        </button>
+      ) : null}
     </div>
   )
 }
@@ -301,6 +343,177 @@ function LogModal({ exercise, gym, onClose }) {
         Greyed numbers are last session — beat them. Clear a row to delete that set.
       </p>
     </Modal>
+  )
+}
+
+function DayModal({ day, onClose, onSaved }) {
+  const open = Boolean(day)
+  const [form, setForm] = useState({ name: '', focus: '' })
+  const [initialised, setInitialised] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const toast = useToast()
+
+  if (open && !initialised) {
+    setForm({ name: day.name ?? '', focus: day.focus ?? '' })
+    setInitialised(true)
+  }
+  if (!open && initialised) setInitialised(false)
+
+  async function save() {
+    setBusy(true)
+    try {
+      const { error } = await supabase
+        .from('gym_days')
+        .update({ name: form.name.trim(), focus: form.focus.trim() })
+        .eq('id', day.id)
+      if (error) throw new Error(error.message)
+      toast('Training day updated')
+      onClose()
+      await onSaved?.()
+    } catch (err) {
+      toast(err.message, 'error')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <Modal
+      open={open}
+      onClose={busy ? undefined : onClose}
+      title="Edit training day"
+      footer={
+        <>
+          <Button onClick={onClose} disabled={busy}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={save} disabled={busy || !form.name.trim()}>
+            {busy ? 'Saving…' : 'Save'}
+          </Button>
+        </>
+      }
+    >
+      <div className="space-y-3">
+        <Field label="Name" value={form.name} onChange={(name) => setForm((f) => ({ ...f, name }))} />
+        <Field
+          label="Focus"
+          value={form.focus}
+          onChange={(focus) => setForm((f) => ({ ...f, focus }))}
+          placeholder="Chest, shoulders, triceps"
+        />
+      </div>
+    </Modal>
+  )
+}
+
+function ExerciseModal({ exercise, onClose, onSaved }) {
+  const open = Boolean(exercise)
+  const [form, setForm] = useState({ name: '', sets: '', reps: '', rest_seconds: '', notes: '' })
+  const [initialised, setInitialised] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const toast = useToast()
+
+  if (open && !initialised) {
+    setForm({
+      name: exercise.name ?? '',
+      sets: exercise.sets ?? '',
+      reps: exercise.reps ?? '',
+      rest_seconds: exercise.rest_seconds ?? '',
+      notes: exercise.notes ?? '',
+    })
+    setInitialised(true)
+  }
+  if (!open && initialised) setInitialised(false)
+
+  async function save() {
+    setBusy(true)
+    try {
+      const { error } = await supabase
+        .from('exercises')
+        .update({
+          name: form.name.trim(),
+          sets: form.sets === '' ? null : Number(form.sets),
+          reps: form.reps.trim(),
+          rest_seconds: form.rest_seconds === '' ? null : Number(form.rest_seconds),
+          notes: form.notes.trim() || null,
+        })
+        .eq('id', exercise.id)
+      if (error) throw new Error(error.message)
+      toast('Exercise updated')
+      onClose()
+      await onSaved?.()
+    } catch (err) {
+      toast(err.message, 'error')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <Modal
+      open={open}
+      onClose={busy ? undefined : onClose}
+      title="Edit exercise"
+      footer={
+        <>
+          <Button onClick={onClose} disabled={busy}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={save} disabled={busy || !form.name.trim()}>
+            {busy ? 'Saving…' : 'Save'}
+          </Button>
+        </>
+      }
+    >
+      <div className="space-y-3">
+        <Field label="Name" value={form.name} onChange={(name) => setForm((f) => ({ ...f, name }))} />
+        <div className="grid grid-cols-2 gap-3">
+          <Field
+            label="Sets"
+            type="number"
+            value={form.sets}
+            onChange={(sets) => setForm((f) => ({ ...f, sets }))}
+          />
+          <Field
+            label="Reps"
+            value={form.reps}
+            onChange={(reps) => setForm((f) => ({ ...f, reps }))}
+            placeholder="8-12"
+          />
+        </div>
+        <Field
+          label="Rest (seconds)"
+          type="number"
+          value={form.rest_seconds}
+          onChange={(rest_seconds) => setForm((f) => ({ ...f, rest_seconds }))}
+        />
+        <div>
+          <label className="mb-1.5 block text-xs font-medium text-ink-300">Form notes</label>
+          <textarea
+            value={form.notes}
+            onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
+            rows={3}
+            placeholder="Grip width, cues, whatever you need to remember"
+            className="w-full resize-none rounded-xl border border-ink-500 bg-ink-900 px-3.5 py-2.5 text-sm leading-relaxed text-ink-100 placeholder:text-ink-400 focus:border-accent focus:outline-none"
+          />
+        </div>
+      </div>
+    </Modal>
+  )
+}
+
+function Field({ label, value, onChange, placeholder, type = 'text' }) {
+  return (
+    <div>
+      <label className="mb-1.5 block text-xs font-medium text-ink-300">{label}</label>
+      <input
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="w-full rounded-lg border border-ink-500 bg-ink-900 px-3 py-2 text-sm text-ink-100 placeholder:text-ink-400 focus:border-accent focus:outline-none"
+      />
+    </div>
   )
 }
 
