@@ -11,7 +11,7 @@ Build and maintain a personal command-center web+PWA app that tracks Mohan's ful
 **App does:**
 - Roadmap tracking (7 phases, week-by-week tasks, progress %)
 - Daily/weekly/monthly habits + streaks
-- Gym program (PPL split, sets/reps/weights logged, full edit support)
+- Gym program (Push/Pull/Legs/Active Rest/Upper/Lower split, sets/reps/weights logged, full edit support, muscle-target reference + exercise dropdown)
 - NEU prep checklist (visa, housing, TA/RA, co-op, groceries, networking)
 - Live AI feed (news, models, papers, repos, HN), scheduled every 30 min
 - Resources library (learning links)
