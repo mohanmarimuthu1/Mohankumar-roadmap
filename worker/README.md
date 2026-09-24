@@ -1,8 +1,11 @@
 # News worker
 
 Background process that fills the `news_articles` table the **Live** tab reads.
-Fetches nine sources every six hours, upserts them into Supabase, and prunes
-stale rows once a day.
+Fetches nine sources, upserts them into Supabase, and prunes stale rows daily.
+In production this runs every 30 minutes via GitHub Actions — see
+[Deploying via GitHub Actions](#deploying-via-github-actions-the-live-path)
+below. `CRON_SCHEDULE` below only applies if you run it as a long-lived
+process yourself (`npm start`).
 
 ```
 worker/
@@ -17,7 +20,7 @@ worker/
 │   ├── github.js         new llm repos   -> category "repos"
 │   └── hn.js             HN stories      -> category "hn"
 ├── migration.sql         optional: metadata column + prune indexes
-├── ecosystem.config.cjs  PM2
+├── ecosystem.config.cjs  PM2 (only needed for the Oracle alternative)
 └── .env.example
 ```
 
@@ -37,6 +40,15 @@ run continues, so a dead feed never costs you the other eight.
 > The Batch's RSS endpoint currently answers 404 and deeplearning.ai publishes
 > no replacement, so expect one `fetch failed` line per run from it. It is left
 > in `fetchers/rss.js` so it recovers by itself if they bring the feed back.
+
+> arXiv is fetched with the native `fetch` API (`getText` in `util.js`), not
+> the shared axios instance every other source uses. Reproduced consistently:
+> arXiv's front end answers 406 whenever the request shares axios's
+> connection pool with the other eight sources running at the same time via
+> `Promise.all`, and never when it runs alone. Switching just that one fetch
+> to a client with its own connection pool (undici, via native `fetch`) made
+> it disappear. If a future Node/axios upgrade fixes the shared pool, this can
+> move back to `get()` — until then, don't "simplify" it back.
 
 ## Schema compatibility
 
@@ -133,7 +145,38 @@ Everything below is optional and has a sane default.
 | `HTTP_TIMEOUT_MS` | `20000` | Per-request timeout |
 | `LOG_LEVEL` | `info` | `debug` \| `info` \| `warn` \| `error` |
 
-## Deploying to Oracle Cloud (always-on)
+## Deploying via GitHub Actions (the live path)
+
+`.github/workflows/news-fetch.yml` runs `npm run once` every 30 minutes and
+`npm run prune` once a day, on GitHub's own runners. No server to keep alive,
+no PM2, no SSH. This is what actually keeps `news_articles` fresh in
+production — set it up once and forget it.
+
+1. Repo → **Settings → Secrets and variables → Actions → New repository
+   secret**, add:
+   - `SUPABASE_URL`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+2. Nothing else to configure. `GITHUB_TOKEN` is provided automatically by
+   Actions on every run — the worker picks it up and gets the higher GitHub
+   search rate limit for free, no secret needed for that one.
+3. Push the workflow file (or merge this branch) and check **Actions** tab —
+   a `News feed` run should appear within 30 minutes, or trigger it immediately
+   with **Run workflow** (the manual `workflow_dispatch` button).
+
+Each run is a fresh checkout — nothing persists between runs except what's
+written to Supabase, so there's no `RUN_ON_STARTUP`/cron-inside-the-process
+concern here; the schedule lives in the workflow file, not in `.env`.
+
+GitHub can silently disable a scheduled workflow after 60 days with no commits
+to the repo — a scheduled fetch counts as *running* the workflow, not
+*committing*, so an idle repo (no pushes) will eventually need someone to open
+the Actions tab and re-enable it once.
+
+## Alternative: always-on on Oracle Cloud
+
+This section is kept for reference; the GitHub Actions path above is what's
+actually deployed. Use this instead only if a persistent `RUN_ON_STARTUP`
+process across restarts matters more than "no infrastructure to maintain."
 
 Oracle's Always Free tier covers this comfortably — the worker is idle for
 almost all of every six-hour window.
