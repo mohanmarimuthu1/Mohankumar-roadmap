@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ChevronDown, Dumbbell, History, Pencil, Timer } from 'lucide-react'
+import { ChevronDown, Dumbbell, History, Pencil, Target, Timer } from 'lucide-react'
 import {
   Button,
   Card,
@@ -15,6 +15,7 @@ import { useToast } from '../components/Toast'
 import { useEditMode, useGym } from '../lib/hooks'
 import { supabase } from '../lib/supabase'
 import { currentWeekDays, formatRelative, todayKey } from '../lib/dates'
+import { EXERCISE_CATALOG, findExerciseTarget } from '../lib/exerciseCatalog'
 
 export default function Gym() {
   const gym = useGym()
@@ -59,6 +60,12 @@ export default function Gym() {
   return (
     <div className="space-y-8">
       <PageHeader />
+
+      <datalist id="exercise-catalog">
+        {EXERCISE_CATALOG.map((e) => (
+          <option key={e.name} value={e.name} />
+        ))}
+      </datalist>
 
       <WeekView gym={gym} />
 
@@ -123,6 +130,7 @@ export default function Gym() {
                     newRow={{ day_id: day.id, sets: 3, reps: '8-12', rest_seconds: 60 }}
                     onMutate={gym.refresh}
                     addLabel="Add exercise"
+                    addListId="exercise-catalog"
                     itemClassName="px-2"
                     renderItem={(exercise) => (
                       <ExerciseRow
@@ -167,6 +175,7 @@ export default function Gym() {
 function ExerciseRow({ exercise, gym, editMode, onOpen, onEdit }) {
   const todaySets = gym.setsFor(exercise.id)
   const last = gym.lastSessionFor(exercise.id)
+  const target = findExerciseTarget(exercise.name)
 
   return (
     <div className="flex items-start gap-1 border-b border-ink-700 last:border-b-0">
@@ -180,6 +189,12 @@ function ExerciseRow({ exercise, gym, editMode, onOpen, onEdit }) {
               <Timer size={11} className="mb-0.5 mr-1 inline" />
               {exercise.rest_seconds}s
             </p>
+            {target ? (
+              <p className="mt-1 flex items-start gap-1 text-xs leading-snug text-ink-400">
+                <Target size={11} className="mt-0.5 shrink-0" />
+                <span>{target}</span>
+              </p>
+            ) : null}
             {exercise.notes ? (
               <p className="mt-1 text-xs leading-snug text-ink-400">{exercise.notes}</p>
             ) : null}
@@ -466,7 +481,21 @@ function ExerciseModal({ exercise, onClose, onSaved }) {
       }
     >
       <div className="space-y-3">
-        <Field label="Name" value={form.name} onChange={(name) => setForm((f) => ({ ...f, name }))} />
+        <div>
+          <Field
+            label="Name"
+            value={form.name}
+            onChange={(name) => setForm((f) => ({ ...f, name }))}
+            placeholder="Type to search, or enter your own"
+            listId="exercise-catalog"
+          />
+          {findExerciseTarget(form.name) ? (
+            <p className="mt-1.5 flex items-start gap-1 text-xs leading-snug text-ink-400">
+              <Target size={11} className="mt-0.5 shrink-0" />
+              <span>{findExerciseTarget(form.name)}</span>
+            </p>
+          ) : null}
+        </div>
         <div className="grid grid-cols-2 gap-3">
           <Field
             label="Sets"
@@ -502,7 +531,7 @@ function ExerciseModal({ exercise, onClose, onSaved }) {
   )
 }
 
-function Field({ label, value, onChange, placeholder, type = 'text' }) {
+function Field({ label, value, onChange, placeholder, type = 'text', listId }) {
   return (
     <div>
       <label className="mb-1.5 block text-xs font-medium text-ink-300">{label}</label>
@@ -511,6 +540,7 @@ function Field({ label, value, onChange, placeholder, type = 'text' }) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
+        list={listId}
         className="w-full rounded-lg border border-ink-500 bg-ink-900 px-3 py-2 text-sm text-ink-100 placeholder:text-ink-400 focus:border-accent focus:outline-none"
       />
     </div>
