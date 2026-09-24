@@ -1,18 +1,18 @@
 import { useRef, useState } from 'react'
-import { Download, LogOut, Palette, Pencil, RotateCcw, Upload } from 'lucide-react'
+import { Dumbbell, Download, LogOut, Palette, Pencil, RotateCcw, Upload } from 'lucide-react'
 import { Button, Card, ConfirmModal, PageHeader, SectionTitle } from '../components/ui'
 import { ThemePicker } from '../components/ThemeToggle'
 import { useToast } from '../components/Toast'
 import { useAuth, useEditMode } from '../lib/hooks'
 import { exportAll, downloadJson, importAll } from '../lib/backup'
-import { resetToDefaults } from '../lib/seed'
+import { resetToDefaults, resetGymToDefaults } from '../lib/seed'
 import { isoDate } from '../lib/dates'
 
 export default function Settings() {
   const { user, signOut } = useAuth()
   const [editMode, setEditMode] = useEditMode()
-  const [busy, setBusy] = useState(null) // 'export' | 'import' | 'reset' | null
-  const [confirm, setConfirm] = useState(null) // 'reset' | 'import'
+  const [busy, setBusy] = useState(null) // 'export' | 'import' | 'reset' | 'resetGym' | null
+  const [confirm, setConfirm] = useState(null) // 'reset' | 'resetGym' | 'import'
   const pendingImport = useRef(null)
   const fileInput = useRef(null)
   const toast = useToast()
@@ -66,6 +66,19 @@ export default function Settings() {
     try {
       await resetToDefaults(user.id)
       toast('Reset to defaults — reloading')
+      setConfirm(null)
+      setTimeout(() => window.location.reload(), 600)
+    } catch (err) {
+      toast(err.message, 'error')
+      setBusy(null)
+    }
+  }
+
+  async function handleResetGym() {
+    setBusy('resetGym')
+    try {
+      await resetGymToDefaults(user.id)
+      toast('Gym split reset — reloading')
       setConfirm(null)
       setTimeout(() => window.location.reload(), 600)
     } catch (err) {
@@ -167,6 +180,16 @@ export default function Settings() {
             }
           />
           <Row
+            icon={Dumbbell}
+            title="Reset gym split to defaults"
+            note="Replaces training days and exercises with the current template. Leaves roadmap, habits, NEU and resources untouched."
+            action={
+              <Button variant="danger" onClick={() => setConfirm('resetGym')} disabled={busy !== null}>
+                Reset
+              </Button>
+            }
+          />
+          <Row
             icon={RotateCcw}
             title="Reset to defaults"
             note="Wipes your data and re-seeds the original template."
@@ -191,6 +214,16 @@ export default function Settings() {
       </section>
 
       <p className="pb-2 text-center text-[11px] text-ink-400">Mohan Roadmap</p>
+
+      <ConfirmModal
+        open={confirm === 'resetGym'}
+        title="Reset gym split"
+        message="Every training day, exercise and logged set will be deleted and replaced with the current Push/Pull/Legs/Active Rest/Upper/Lower template. This cannot be undone."
+        confirmLabel="Reset gym"
+        busy={busy === 'resetGym'}
+        onCancel={() => setConfirm(null)}
+        onConfirm={handleResetGym}
+      />
 
       <ConfirmModal
         open={confirm === 'reset'}
