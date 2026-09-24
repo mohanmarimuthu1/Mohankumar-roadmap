@@ -210,9 +210,7 @@ function ResourceModal({ resource, categories, busy, onClose, onSave }) {
           type="url"
         />
         <div>
-          <label className="mb-1.5 block text-[11px] uppercase tracking-wide text-ink-400">
-            Category
-          </label>
+          <label className="mb-1.5 block text-xs font-medium text-ink-300">Category</label>
           <input
             list="resource-categories"
             value={form.category}
@@ -234,9 +232,7 @@ function ResourceModal({ resource, categories, busy, onClose, onSave }) {
 function Field({ label, value, onChange, placeholder, type = 'text' }) {
   return (
     <div>
-      <label className="mb-1.5 block text-[11px] uppercase tracking-wide text-ink-400">
-        {label}
-      </label>
+      <label className="mb-1.5 block text-xs font-medium text-ink-300">{label}</label>
       <input
         type={type}
         value={value}

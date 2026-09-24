@@ -79,7 +79,7 @@
         }
       ]
     },
-    { "code": "03", "name": "LLM / RAG / Agents", "weeks": "Week 19-28", "tag": "⭐",
+    { "code": "03", "name": "LLM / RAG / Agents", "weeks": "Week 19-28", "tag": "",
       "groups": [
         { "title": "LLM fundamentals (W19-20)",
           "tasks": [
@@ -95,7 +95,7 @@
             "Build + deploy: chat-with-your-docs"
           ]
         },
-        { "title": "Evals ⭐ → Project 2 (W24-25)",
+        { "title": "Evals → Project 2 (W24-25)",
           "tasks": [
             "Eval frameworks + LLM-as-judge",
             "Hallucination detection + guardrails",
@@ -117,7 +117,7 @@
         }
       ]
     },
-    { "code": "04", "name": "MLOps + Cloud", "weeks": "Week 29-38", "tag": "🔥",
+    { "code": "04", "name": "MLOps + Cloud", "weeks": "Week 29-38", "tag": "",
       "groups": [
         { "title": "Containers (W29-30)",
           "tasks": [
