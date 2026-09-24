@@ -579,7 +579,11 @@ function WeekView({ gym }) {
                 ].join(' ')}
               >
                 {trained.length ? (
-                  trained.slice(0, 2).map((name) => <span key={name}>{name}</span>)
+                  trained.slice(0, 2).map((name) => (
+                    <span key={name} className="w-full truncate text-center">
+                      {name}
+                    </span>
+                  ))
                 ) : (
                   <span>·</span>
                 )}
