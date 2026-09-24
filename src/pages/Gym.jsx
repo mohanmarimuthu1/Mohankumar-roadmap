@@ -3,6 +3,7 @@ import { ChevronDown, Dumbbell, History, Pencil, Target, Timer } from 'lucide-re
 import {
   Button,
   Card,
+  Combobox,
   EmptyState,
   ErrorNote,
   Modal,
@@ -16,6 +17,8 @@ import { useEditMode, useGym } from '../lib/hooks'
 import { supabase } from '../lib/supabase'
 import { currentWeekDays, formatRelative, todayKey } from '../lib/dates'
 import { EXERCISE_CATALOG, findExerciseTarget } from '../lib/exerciseCatalog'
+
+const EXERCISE_NAMES = EXERCISE_CATALOG.map((e) => e.name)
 
 export default function Gym() {
   const gym = useGym()
@@ -60,12 +63,6 @@ export default function Gym() {
   return (
     <div className="space-y-8">
       <PageHeader />
-
-      <datalist id="exercise-catalog">
-        {EXERCISE_CATALOG.map((e) => (
-          <option key={e.name} value={e.name} />
-        ))}
-      </datalist>
 
       <WeekView gym={gym} />
 
@@ -130,7 +127,7 @@ export default function Gym() {
                     newRow={{ day_id: day.id, sets: 3, reps: '8-12', rest_seconds: 60 }}
                     onMutate={gym.refresh}
                     addLabel="Add exercise"
-                    addListId="exercise-catalog"
+                    addOptions={EXERCISE_NAMES}
                     itemClassName="px-2"
                     renderItem={(exercise) => (
                       <ExerciseRow
@@ -487,7 +484,7 @@ function ExerciseModal({ exercise, onClose, onSaved }) {
             value={form.name}
             onChange={(name) => setForm((f) => ({ ...f, name }))}
             placeholder="Type to search, or enter your own"
-            listId="exercise-catalog"
+            options={EXERCISE_NAMES}
           />
           {findExerciseTarget(form.name) ? (
             <p className="mt-1.5 flex items-start gap-1 text-xs leading-snug text-ink-400">
@@ -531,18 +528,21 @@ function ExerciseModal({ exercise, onClose, onSaved }) {
   )
 }
 
-function Field({ label, value, onChange, placeholder, type = 'text', listId }) {
+function Field({ label, value, onChange, placeholder, type = 'text', options }) {
   return (
     <div>
       <label className="mb-1.5 block text-xs font-medium text-ink-300">{label}</label>
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        list={listId}
-        className="w-full rounded-lg border border-ink-500 bg-ink-900 px-3 py-2 text-sm text-ink-100 placeholder:text-ink-400 focus:border-accent focus:outline-none"
-      />
+      {options ? (
+        <Combobox value={value} onChange={onChange} options={options} placeholder={placeholder} />
+      ) : (
+        <input
+          type={type}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          className="w-full rounded-lg border border-ink-500 bg-ink-900 px-3 py-2 text-sm text-ink-100 placeholder:text-ink-400 focus:border-accent focus:outline-none"
+        />
+      )}
     </div>
   )
 }
