@@ -253,7 +253,8 @@
         { "name": "Seated cable row", "sets": 3, "reps": "10-12", "rest_seconds": 90, "notes": "Squeeze shoulder blades" },
         { "name": "Face pull", "sets": 4, "reps": "15", "rest_seconds": 60, "notes": "Rope to face, elbows high" },
         { "name": "Barbell curl", "sets": 3, "reps": "8-10", "rest_seconds": 60, "notes": "No swing, full ROM" },
-        { "name": "Hammer curl", "sets": 3, "reps": "10", "rest_seconds": 60, "notes": "Neutral grip, alternate" }
+        { "name": "Hammer curl", "sets": 3, "reps": "10", "rest_seconds": 60, "notes": "Neutral grip, alternate" },
+        { "name": "Hanging leg raise", "sets": 3, "reps": "12-15", "rest_seconds": 60, "notes": "No swing, curl pelvis at top" }
       ]
     },
     { "name": "Legs", "focus": "Quads / Hams / Glutes / Calves — heavy compound",
@@ -285,7 +286,8 @@
         { "name": "Cable crossover", "sets": 3, "reps": "12-15", "rest_seconds": 60, "notes": "Cross hands at bottom, squeeze" },
         { "name": "Rear delt fly", "sets": 3, "reps": "15", "rest_seconds": 60, "notes": "Light weight, strict form" },
         { "name": "EZ-bar curl", "sets": 3, "reps": "10", "rest_seconds": 60, "notes": "Elbows pinned to sides" },
-        { "name": "Skull crushers", "sets": 3, "reps": "10-12", "rest_seconds": 60, "notes": "Elbows in, lower to forehead" }
+        { "name": "Skull crushers", "sets": 3, "reps": "10-12", "rest_seconds": 60, "notes": "Elbows in, lower to forehead" },
+        { "name": "Pallof press", "sets": 3, "reps": "10 each", "rest_seconds": 45, "notes": "Press straight out, resist rotation" }
       ]
     },
     { "name": "Lower", "focus": "Quads / Glutes / Hamstrings / Calves — posterior chain + hypertrophy",
