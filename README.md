@@ -3,6 +3,10 @@
 Personal roadmap, habits, training and pre-arrival tracker. React + Vite on the
 front, Supabase for auth and data, no backend of its own.
 
+**Docs:** [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) (how the code works),
+[`process.md`](process.md) (what's done, what's next), [`worker/README.md`](worker/README.md)
+(the news feed), [`CLAUDE.md`](CLAUDE.md) (project context and working rules).
+
 ## Stack
 
 | Piece    | Choice                                                   |
@@ -14,6 +18,7 @@ front, Supabase for auth and data, no backend of its own.
 | Drag     | @dnd-kit                                                 |
 | Offline  | vite-plugin-pwa (autoUpdate service worker)              |
 | Hosting  | Vercel                                                   |
+| News feed | Node worker in `worker/`, scheduled by GitHub Actions (every 30 min) |
 
 ## First run
 
@@ -37,11 +42,12 @@ VITE_SUPABASE_ANON_KEY=<anon / publishable key>
    table, index and RLS policy, and is safe to re-run.
 2. **Google auth** — Authentication → Providers → Google. Add your site URL and
    `http://localhost:5173` to the redirect allow-list.
-3. **Feeds (optional)** — deploy the Live tab's fetcher:
-   ```bash
-   npx supabase functions deploy refresh-feeds --project-ref <project-ref>
-   ```
-   Everything else works without it; the Live tab just stays empty.
+3. **Feeds (optional)** — the Live tab reads `news_articles`, filled by the
+   worker in [`worker/`](worker/README.md), scheduled every 30 minutes via
+   `.github/workflows/news-fetch.yml`. Add the two repo secrets it needs
+   (`SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`) and it runs on its own —
+   see `worker/README.md`. Everything else works without it; the Live tab
+   just stays empty.
 
 On first login the app seeds the signed-in user's account from
 `src/lib/seed.json` and records the fact in `user_settings.seeded_at`. Editing
@@ -70,28 +76,32 @@ src/
 └── pages/               Today, Roadmap, Live, Gym, Habits, NEU, Resources, Settings
 
 worker/                  standalone Node service that fills the Live tab
-├── index.js             source registry + cron (fetch every 6h, prune daily)
+├── index.js             source registry + cron (only used if run long-lived)
 ├── db.js                supabase writes (service role key)
 └── fetchers/            rss, huggingface, arxiv, github, hn
+
+.github/workflows/
+└── news-fetch.yml        runs the worker every 30 min + prunes daily
 ```
 
-The worker is deployed separately from the app — see
-[worker/README.md](worker/README.md) for setup and the Oracle Cloud + PM2
-instructions.
+The worker runs on GitHub's own schedule, not inside this app or Vercel — see
+[worker/README.md](worker/README.md) for the two secrets it needs and how to
+check it's running.
 
 ## Data model notes
 
 - Every user-owned table carries `user_id` and a single RLS policy: full access
   to your own rows, none to anyone else's.
 - `news_articles` is shared, readable by any signed-in user, and written only by
-  the edge function (service role).
+  the worker in `worker/` (service role key, never shipped to the browser).
 - `habit_log.log_date` is a **period key**, not a timestamp: the day itself for
   daily habits, the Monday of the ISO week for weekly, the 1st of the month for
-  monthly. That is what makes `unique (habit_id, log_date)` mean "done for this
-  period".
+  monthly. Not enforced by a unique constraint in the live database — writes are
+  delete-then-insert instead of upsert (see `src/lib/hooks.js`).
 - Ordering everywhere is an integer `order_idx`, rewritten on drop.
-- Gym history is one row per set (`exercise_id`, `log_date`, `set_idx`), so
-  "last session" is just the most recent earlier `log_date`.
+- Gym history is one row per set: `gym_logs(exercise_id, log_date, set_number,
+  weight_kg, reps_completed)`. "Last session" is just the most recent earlier
+  `log_date` for that exercise.
 
 ## Deploying to Vercel
 
