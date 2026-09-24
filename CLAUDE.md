@@ -89,7 +89,7 @@ UI Libs     lucide-react, @dnd-kit/core
 Auth        Supabase Google OAuth
 Database    Supabase Postgres + Row Level Security
 Deploy      Vercel (auto-deploy from git push)
-Worker      Node 20 in worker/, scheduled by GitHub Actions every 30 min
+Worker      Node 22 in worker/, scheduled by GitHub Actions every 30 min
             (.github/workflows/news-fetch.yml) — no server to maintain
 PWA         vite-plugin-pwa (installable on iOS/Android/desktop)
 ```

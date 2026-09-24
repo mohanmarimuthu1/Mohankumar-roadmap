@@ -199,7 +199,7 @@ not open any ports.
 > monitoring agent is normally enough to avoid this; if you want certainty, use
 > a paid-eligible account or keep `pm2 monit`-level activity on the box.
 
-### 2. Connect and install Node 20
+### 2. Connect and install Node 22
 
 ```bash
 ssh -i ~/.ssh/your_key ubuntu@<public-ip>
@@ -207,9 +207,9 @@ ssh -i ~/.ssh/your_key ubuntu@<public-ip>
 sudo apt update && sudo apt upgrade -y
 sudo apt install -y git curl
 
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
 sudo apt install -y nodejs
-node -v          # v20.x
+node -v          # v22.x
 
 sudo npm install -g pm2
 ```
@@ -296,6 +296,7 @@ pm2 restart news-worker
 | `is missing a link column ... found: ...` | The table exists but has neither `url`/`link` nor `published_at`/`published` — see *Schema compatibility* |
 | `HTTP 403 from api.github.com` | Search rate limit hit; set `GITHUB_TOKEN` |
 | Process restarting in a loop | `pm2 logs news-worker --err` — bad `.env` is the usual cause |
+| `Node.js detected but native WebSocket not found` (crashes at startup, before any source runs) | Running on Node 20 or 21. `createClient()` builds a realtime client eagerly even though this worker never subscribes to anything, and that client requires a global `WebSocket`, which only exists by default from Node 22 onward. Fix is Node 22+, not a code change — see `engines` in `package.json` and `node-version` in `.github/workflows/news-fetch.yml`. |
 
 ## Relationship to the edge function
 
