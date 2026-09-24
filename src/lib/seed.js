@@ -173,4 +173,41 @@ export async function resetToDefaults(userId) {
     .upsert({ user_id: userId, seeded_at: new Date().toISOString() }, { onConflict: 'user_id' })
 }
 
+/**
+ * Replaces just the gym split with the current seed.json template, leaving
+ * every other table untouched. For accounts seeded before a split rewrite —
+ * seed.json changes never retroactively touch rows already in the DB.
+ */
+export async function resetGymToDefaults(userId) {
+  const own = (row) => ({ ...row, user_id: userId })
+
+  for (const table of ['gym_logs', 'exercises', 'gym_days']) {
+    const { error } = await supabase.from(table).delete().eq('user_id', userId)
+    if (error) throw new Error(`clearing ${table}: ${error.message}`)
+  }
+
+  const gymDays = await insertRows(
+    'gym_days',
+    (seedData.gym_days ?? []).map((d, i) => own({ name: d.name, focus: d.focus ?? '', order_idx: i }))
+  )
+
+  const exerciseRows = []
+  ;(seedData.gym_days ?? []).forEach((day, dayIdx) => {
+    ;(day.exercises ?? []).forEach((ex, exIdx) => {
+      exerciseRows.push(
+        own({
+          day_id: gymDays[dayIdx].id,
+          name: ex.name,
+          sets: ex.sets ?? 3,
+          reps: ex.reps ?? '',
+          rest_seconds: ex.rest_seconds ?? 60,
+          notes: ex.notes ?? '',
+          order_idx: exIdx,
+        })
+      )
+    })
+  })
+  await insertRows('exercises', exerciseRows)
+}
+
 export { seedData }
