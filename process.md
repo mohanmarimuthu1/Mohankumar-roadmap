@@ -50,11 +50,23 @@ Also done, beyond the tab list: Google OAuth + protected routes, first-login see
 
 ## Next steps
 
-**Needs Mohan (can't be done from here):**
-1. Add `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` as repo secrets (Settings → Secrets and variables → Actions) so `news-fetch.yml` can actually run — it will fail every run until these exist.
-2. Rotate `SUPABASE_SERVICE_ROLE_KEY` in the Supabase dashboard (it was shared in an earlier chat session), then update the GitHub Actions secret to match.
-3. Click through the new Gym edit feature and the Live reload button in a real browser at least once.
-4. Confirm the GitHub Actions "News feed" workflow actually ran (Actions tab) within 30 minutes of secrets being added, or trigger it manually via "Run workflow."
-5. Your already-seeded phases 03 and 04 still have the ⭐/🔥 tags in the live database (`seed.json` only affects new logins and "Reset to defaults"). One-line fix if you want them gone now: `update phases set tag = '' where code in ('03','04') and user_id = auth.uid();` in the Supabase SQL editor.
+**Done, verified live (2026-09-24):** repo secrets added, workflow re-run on commit `fea41d3` — `conclusion: success`, confirmed via GitHub's API. The feed is genuinely live now, not just configured.
+
+**Still needs Mohan:**
+1. Rotate `SUPABASE_SERVICE_ROLE_KEY` in the Supabase dashboard (it was shared in an earlier chat session — the keys added as secrets were the *old*, still-exposed ones, not a rotated pair). Then update the `SUPABASE_SERVICE_ROLE_KEY` GitHub secret to match.
+2. Click through the new Gym edit feature and the Live reload button in a real browser at least once — never verified in a browser this session, only by build + code review.
+3. Already-seeded phases 03 and 04 still have the ⭐/🔥 tags in the live database (`seed.json` only affects new logins and "Reset to defaults"). One-line fix if you want them gone now: `update phases set tag = '' where code in ('03','04') and user_id = auth.uid();` in the Supabase SQL editor.
 
 **Backlog, not yet started (see `CLAUDE.md` for the full list):** replace the dead "The Batch" feed, PWA install prompt, push notifications for habits, gym progression graphs, calendar view for task deadlines, Tailwind CDN → PostCSS migration (bigger change, ask first).
+
+## Future possible operations
+
+Not asked for yet — worth knowing about before they become a fire drill.
+
+- **A regular key rotation habit, not just this one-off.** The service_role key bypasses RLS entirely; anyone who gets it can read or write every user's data (there's currently one user, but still). Rotate it every few months in the Supabase dashboard, update the one GitHub secret, done — no code change needed since the worker reads it from the environment.
+- **A plain CI check on push**, separate from the news-fetch schedule — a `ci.yml` that just runs `npm run build` (and maybe `cd worker && npm run once --dry-run` if that mode existed) on every push to `main`. Right now a build-breaking bug is only caught when Vercel deploys it or a human notices; a push-triggered workflow catches it in ~30 seconds instead.
+- **Watch for GitHub silently disabling the schedule.** GitHub turns off a scheduled workflow after 60 days of no commits to the repo at all (not no runs — no commits). Low risk given how often this repo is touched, but if the feed ever looks stale, check **Actions → News feed** for a "this schedule has been disabled" banner before assuming the code broke.
+- **`npm audit` flagged 2 moderate vulnerabilities in worker's dependencies** (visible in the CI log from the run that finally succeeded). Worth a `npm audit fix` pass in both `worker/` and the root at some point — not urgent, nothing here handles payments or PII beyond Mohan's own data.
+- **Re-run the "is this really axios's fault" check if arXiv breaks again after a `@supabase/supabase-js` or Node upgrade.** The fix in `worker/fetchers/arxiv.js` (native `fetch` instead of the shared axios client) was diagnosed empirically, not from a known upstream bug report — if a future dependency bump changes axios's connection-pooling behavior, it's worth re-testing whether the workaround is still needed, rather than assuming it always will be.
+- **If a new source is ever added to the worker, fetch it with `getText()` (native `fetch`) first, not axios,** until proven safe under the full 9-way (soon to be 10-way) concurrent `Promise.all` — cheaper than rediscovering the arXiv bug from scratch on a different host.
+- **A lightweight uptime signal for the feed itself**, not just the workflow. GitHub already emails the repo owner on workflow failure by default — worth confirming that's still on (Settings → Notifications) rather than adding a second monitoring system for a single scheduled job.
