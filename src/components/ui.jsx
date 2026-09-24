@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { Check, AlertTriangle, X } from 'lucide-react'
 import { navItemFor } from '../lib/nav'
@@ -128,6 +128,100 @@ export function Checkbox({ checked, onChange, label, sublabel, className = '' })
         {sublabel ? <span className="mt-0.5 block text-xs text-ink-400">{sublabel}</span> : null}
       </span>
     </button>
+  )
+}
+
+/**
+ * Text input with a filtered suggestion list. Replaces native <datalist>,
+ * which iOS Safari renders inconsistently (often not at all) inside a PWA.
+ */
+export function Combobox({
+  value,
+  onChange,
+  options,
+  placeholder,
+  autoFocus,
+  onKeyDown,
+  onBlur,
+  className = '',
+}) {
+  const [open, setOpen] = useState(false)
+  const [highlight, setHighlight] = useState(-1)
+
+  const query = value.trim().toLowerCase()
+  const matches = (query ? options.filter((o) => o.toLowerCase().includes(query)) : options).slice(0, 8)
+
+  function select(option) {
+    onChange(option)
+    setOpen(false)
+    setHighlight(-1)
+  }
+
+  function handleKeyDown(e) {
+    if (open && matches.length) {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        setHighlight((h) => Math.min(h + 1, matches.length - 1))
+        return
+      }
+      if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        setHighlight((h) => Math.max(h - 1, -1))
+        return
+      }
+      if (e.key === 'Enter' && highlight >= 0) {
+        e.preventDefault()
+        select(matches[highlight])
+        return
+      }
+      if (e.key === 'Escape') {
+        setOpen(false)
+        return
+      }
+    }
+    onKeyDown?.(e)
+  }
+
+  return (
+    <div className="relative">
+      <input
+        autoFocus={autoFocus}
+        value={value}
+        placeholder={placeholder}
+        onChange={(e) => {
+          onChange(e.target.value)
+          setOpen(true)
+          setHighlight(-1)
+        }}
+        onFocus={() => setOpen(true)}
+        onBlur={(e) => {
+          setTimeout(() => setOpen(false), 120)
+          onBlur?.(e)
+        }}
+        onKeyDown={handleKeyDown}
+        className={`w-full rounded-lg border border-ink-500 bg-ink-900 px-3 py-2 text-sm text-ink-100 placeholder:text-ink-400 focus:border-accent focus:outline-none ${className}`}
+      />
+      {open && matches.length ? (
+        <ul className="shadow-soft absolute z-20 mt-1 max-h-52 w-full overflow-auto rounded-lg border border-ink-500 bg-ink-800 py-1">
+          {matches.map((option, i) => (
+            <li key={option}>
+              <button
+                type="button"
+                onMouseDown={(e) => {
+                  e.preventDefault()
+                  select(option)
+                }}
+                className={`block w-full truncate px-3 py-1.5 text-left text-sm ${
+                  i === highlight ? 'bg-ink-700 text-accent' : 'text-ink-100 hover:bg-ink-700'
+                }`}
+              >
+                {option}
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
   )
 }
 
