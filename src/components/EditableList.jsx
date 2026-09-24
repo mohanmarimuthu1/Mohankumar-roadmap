@@ -38,6 +38,7 @@ export default function EditableList({
   onMutate,
   renderItem,
   addLabel = 'Add item',
+  addListId,
   itemClassName = '',
   renameInline = true,
   allowAdd = true,
@@ -169,7 +170,7 @@ export default function EditableList({
 
       {!allowAdd ? null : adding ? (
         <div className={`px-4 py-2.5 ${itemClassName}`}>
-          <InlineInput placeholder={addLabel} onSubmit={add} onCancel={() => setAdding(false)} />
+          <InlineInput placeholder={addLabel} listId={addListId} onSubmit={add} onCancel={() => setAdding(false)} />
         </div>
       ) : (
         <button
@@ -265,7 +266,7 @@ function SortableRow({
   )
 }
 
-function InlineInput({ defaultValue = '', placeholder, onSubmit, onCancel }) {
+function InlineInput({ defaultValue = '', placeholder, listId, onSubmit, onCancel }) {
   const [value, setValue] = useState(defaultValue)
 
   return (
@@ -274,6 +275,7 @@ function InlineInput({ defaultValue = '', placeholder, onSubmit, onCancel }) {
         autoFocus
         value={value}
         placeholder={placeholder}
+        list={listId}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === 'Enter') onSubmit(value)
