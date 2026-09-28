@@ -2,8 +2,10 @@ name: News feed
 
 on:
   schedule:
-    # Fetch every 30 minutes.
-    - cron: '*/30 * * * *'
+    # Fetch every 30 minutes, offset from :00/:30 — GitHub queues scheduled
+    # runs and delays them most at the top and bottom of the hour, so firing
+    # off that mark cuts the wait (see worker/README.md).
+    - cron: '7,37 * * * *'
     # Prune stale rows once a day, 03:15 UTC.
     - cron: '15 3 * * *'
   workflow_dispatch:
