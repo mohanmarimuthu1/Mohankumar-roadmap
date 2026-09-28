@@ -1,13 +1,20 @@
 import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { ArrowUpRight, RefreshCw } from 'lucide-react'
 import { Card, EmptyState, ErrorNote, PageHeader, SkeletonList } from '../components/ui'
 import { LIVE_CATEGORIES, useNews } from '../lib/hooks'
 import { formatRelative } from '../lib/dates'
 
 export default function Live() {
-  const [category, setCategory] = useState('news')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const requested = searchParams.get('category')
+  const category = LIVE_CATEGORIES.some((c) => c.key === requested) ? requested : 'news'
   const { articles, loading, error, refresh } = useNews(category)
   const [refreshing, setRefreshing] = useState(false)
+
+  function setCategory(key) {
+    setSearchParams(key === 'news' ? {} : { category: key })
+  }
 
   // The actual fetching happens on a schedule (GitHub Actions, every 30
   // minutes, see worker/README.md) and writes straight to Supabase. This
@@ -33,7 +40,7 @@ export default function Live() {
             title="Reload feeds"
             className="rounded-xl border border-ink-600 p-2.5 text-ink-300 transition-colors hover:bg-ink-700 hover:text-ink-100 disabled:opacity-50"
           >
-            <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />
+            <RefreshCw size={16} aria-hidden="true" className={refreshing ? 'animate-spin' : ''} />
           </button>
         }
       />
@@ -86,7 +93,7 @@ export default function Live() {
                   </p>
                 ) : null}
               </div>
-              <ArrowUpRight size={14} className="mt-1 shrink-0 text-ink-400" />
+              <ArrowUpRight size={14} aria-hidden="true" className="mt-1 shrink-0 text-ink-400" />
             </a>
           ))}
         </Card>
