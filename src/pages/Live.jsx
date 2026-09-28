@@ -104,7 +104,7 @@ export default function Live() {
       )}
 
       <p className="text-center text-[11px] text-ink-400">
-        New items land every 30 minutes · this tab re-checks every 5
+        New items land as GitHub Actions fetches them · this tab re-checks every 5 min
       </p>
     </div>
   )
