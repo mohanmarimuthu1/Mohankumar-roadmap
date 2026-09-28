@@ -152,6 +152,15 @@ Everything below is optional and has a sane default.
 no PM2, no SSH. This is what actually keeps `news_articles` fresh in
 production — set it up once and forget it.
 
+`schedule` triggers are best-effort on GitHub's side, not exact: a run queued
+for `:00` or `:30` competes with everyone else's workflows queued for the same
+mark and can sit for hours before it starts, even though it shows "success"
+once it finally does. The cron is offset to `7,37 * * * *` for this reason —
+firing a few minutes off the mark avoids the worst of that queue. Runs can
+still land anywhere from a few minutes to a few hours apart; that's GitHub,
+not a bug in the worker. Checking `news_articles.fetched_at` (or the Actions
+tab's run timestamps) is the way to see the real cadence, not the cron string.
+
 1. Repo → **Settings → Secrets and variables → Actions → New repository
    secret**, add:
    - `SUPABASE_URL`
