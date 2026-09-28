@@ -91,7 +91,7 @@ export default function Gym() {
                   aria-expanded={isOpen}
                   className="flex min-w-0 flex-1 items-center gap-3 px-4 py-3.5 text-left"
                 >
-                  <Dumbbell size={16} className={doneToday ? 'text-accent' : 'text-ink-400'} />
+                  <Dumbbell size={16} aria-hidden="true" className={doneToday ? 'text-accent' : 'text-ink-400'} />
                   <span className="min-w-0 flex-1">
                     <span className="block font-display text-[15px] font-semibold text-ink-50">
                       {day.name}
@@ -102,6 +102,7 @@ export default function Gym() {
                   </span>
                   <ChevronDown
                     size={16}
+                    aria-hidden="true"
                     className={`shrink-0 text-ink-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
                   />
                 </button>
@@ -183,12 +184,12 @@ function ExerciseRow({ exercise, gym, editMode, onOpen, onEdit }) {
             <p className="mt-0.5 text-xs text-ink-400">
               {exercise.sets} × {exercise.reps}
               <span className="mx-1.5 text-ink-500">|</span>
-              <Timer size={11} className="mb-0.5 mr-1 inline" />
+              <Timer size={11} aria-hidden="true" className="mb-0.5 mr-1 inline" />
               {exercise.rest_seconds}s
             </p>
             {target ? (
               <p className="mt-1 flex items-start gap-1 text-xs leading-snug text-ink-400">
-                <Target size={11} className="mt-0.5 shrink-0" />
+                <Target size={11} aria-hidden="true" className="mt-0.5 shrink-0" />
                 <span>{target}</span>
               </p>
             ) : null}
@@ -205,7 +206,7 @@ function ExerciseRow({ exercise, gym, editMode, onOpen, onEdit }) {
             ) : null}
             {last ? (
               <p className="mt-1 flex items-center justify-end gap-1 text-[11px] text-ink-400">
-                <History size={10} />
+                <History size={10} aria-hidden="true" />
                 {summariseSets(last.sets)}
               </p>
             ) : (
@@ -305,7 +306,7 @@ function LogModal({ exercise, gym, onClose }) {
             Cancel
           </Button>
           <Button variant="primary" onClick={save} disabled={busy}>
-            {busy ? 'Saving…' : 'Save'}
+            {busy ? 'Saving…' : 'Save session'}
           </Button>
         </>
       }
@@ -400,7 +401,7 @@ function DayModal({ day, onClose, onSaved }) {
             Cancel
           </Button>
           <Button variant="primary" onClick={save} disabled={busy || !form.name.trim()}>
-            {busy ? 'Saving…' : 'Save'}
+            {busy ? 'Saving…' : 'Save training day'}
           </Button>
         </>
       }
@@ -472,7 +473,7 @@ function ExerciseModal({ exercise, onClose, onSaved }) {
             Cancel
           </Button>
           <Button variant="primary" onClick={save} disabled={busy || !form.name.trim()}>
-            {busy ? 'Saving…' : 'Save'}
+            {busy ? 'Saving…' : 'Save exercise'}
           </Button>
         </>
       }
@@ -483,12 +484,12 @@ function ExerciseModal({ exercise, onClose, onSaved }) {
             label="Name"
             value={form.name}
             onChange={(name) => setForm((f) => ({ ...f, name }))}
-            placeholder="Type to search, or enter your own"
+            placeholder="Search or type your own…"
             options={EXERCISE_NAMES}
           />
           {findExerciseTarget(form.name) ? (
             <p className="mt-1.5 flex items-start gap-1 text-xs leading-snug text-ink-400">
-              <Target size={11} className="mt-0.5 shrink-0" />
+              <Target size={11} aria-hidden="true" className="mt-0.5 shrink-0" />
               <span>{findExerciseTarget(form.name)}</span>
             </p>
           ) : null}
@@ -514,12 +515,15 @@ function ExerciseModal({ exercise, onClose, onSaved }) {
           onChange={(rest_seconds) => setForm((f) => ({ ...f, rest_seconds }))}
         />
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-ink-300">Form notes</label>
+          <label htmlFor="exercise-notes" className="mb-1.5 block text-xs font-medium text-ink-300">
+            Form notes
+          </label>
           <textarea
+            id="exercise-notes"
             value={form.notes}
             onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
             rows={3}
-            placeholder="Grip width, cues, whatever you need to remember"
+            placeholder="Grip width, cues, whatever you need to remember…"
             className="w-full resize-none rounded-xl border border-ink-500 bg-ink-900 px-3.5 py-2.5 text-sm leading-relaxed text-ink-100 placeholder:text-ink-400 focus:border-accent focus:outline-none"
           />
         </div>
@@ -529,13 +533,23 @@ function ExerciseModal({ exercise, onClose, onSaved }) {
 }
 
 function Field({ label, value, onChange, placeholder, type = 'text', options }) {
+  const id = `exercise-${label.toLowerCase().replace(/\s+/g, '-')}`
   return (
     <div>
-      <label className="mb-1.5 block text-xs font-medium text-ink-300">{label}</label>
+      <label htmlFor={id} className="mb-1.5 block text-xs font-medium text-ink-300">
+        {label}
+      </label>
       {options ? (
-        <Combobox value={value} onChange={onChange} options={options} placeholder={placeholder} />
+        <Combobox
+          id={id}
+          value={value}
+          onChange={onChange}
+          options={options}
+          placeholder={placeholder}
+        />
       ) : (
         <input
+          id={id}
           type={type}
           value={value}
           onChange={(e) => onChange(e.target.value)}

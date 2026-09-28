@@ -114,7 +114,7 @@ export default function Resources() {
                           {hostOf(resource.url)}
                         </span>
                       </span>
-                      <ArrowUpRight size={14} className="shrink-0 text-ink-400" />
+                      <ArrowUpRight size={14} aria-hidden="true" className="shrink-0 text-ink-400" />
                     </a>
 
                     {editMode ? (
@@ -190,7 +190,7 @@ function ResourceModal({ resource, categories, busy, onClose, onSave }) {
             Cancel
           </Button>
           <Button variant="primary" onClick={() => onSave(form)} disabled={busy || !valid}>
-            {busy ? 'Saving…' : 'Save'}
+            {busy ? 'Saving…' : resource?.id ? 'Save resource' : 'Add resource'}
           </Button>
         </>
       }
@@ -210,8 +210,11 @@ function ResourceModal({ resource, categories, busy, onClose, onSave }) {
           type="url"
         />
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-ink-300">Category</label>
+          <label htmlFor="resource-category" className="mb-1.5 block text-xs font-medium text-ink-300">
+            Category
+          </label>
           <input
+            id="resource-category"
             list="resource-categories"
             value={form.category}
             onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
@@ -230,10 +233,14 @@ function ResourceModal({ resource, categories, busy, onClose, onSave }) {
 }
 
 function Field({ label, value, onChange, placeholder, type = 'text' }) {
+  const id = `resource-${label.toLowerCase()}`
   return (
     <div>
-      <label className="mb-1.5 block text-xs font-medium text-ink-300">{label}</label>
+      <label htmlFor={id} className="mb-1.5 block text-xs font-medium text-ink-300">
+        {label}
+      </label>
       <input
+        id={id}
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}

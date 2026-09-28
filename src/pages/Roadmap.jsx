@@ -133,6 +133,7 @@ export default function Roadmap() {
 
                 <ChevronDown
                   size={16}
+                  aria-hidden="true"
                   className={`shrink-0 text-ink-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
                 />
               </button>
@@ -182,7 +183,7 @@ export default function Roadmap() {
                                   task.notes ? 'text-accent' : 'text-ink-400 hover:text-ink-100',
                                 ].join(' ')}
                               >
-                                <StickyNote size={14} />
+                                <StickyNote size={14} aria-hidden="true" />
                               </button>
                             </div>
                           )}
@@ -240,7 +241,7 @@ function NotesModal({ task, onClose, onSave }) {
             Cancel
           </Button>
           <Button variant="primary" onClick={handleSave} disabled={busy}>
-            {busy ? 'Saving…' : 'Save'}
+            {busy ? 'Saving…' : 'Save notes'}
           </Button>
         </>
       }
@@ -250,6 +251,7 @@ function NotesModal({ task, onClose, onSave }) {
         onChange={(e) => setValue(e.target.value)}
         rows={7}
         autoFocus
+        aria-label={`Notes for ${task?.label ?? ''}`}
         placeholder="Notes, links, blockers…"
         className="w-full resize-none rounded-xl border border-ink-500 bg-ink-900 px-3.5 py-3 text-sm leading-relaxed text-ink-100 placeholder:text-ink-400 focus:border-accent focus:outline-none"
       />
