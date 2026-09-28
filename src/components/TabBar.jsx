@@ -29,7 +29,7 @@ export default function TabBar() {
                 {isActive ? (
                   <span className="absolute inset-x-3 top-0 h-0.5 rounded-full bg-accent" />
                 ) : null}
-                <Icon size={19} />
+                <Icon size={19} aria-hidden="true" />
                 <span className="text-[10px] font-medium tracking-tight">{label}</span>
               </>
             )}

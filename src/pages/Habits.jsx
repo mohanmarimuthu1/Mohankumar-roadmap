@@ -113,7 +113,7 @@ export default function Habits() {
               itemClassName="px-2"
               renderItem={(rule) => (
                 <div key={rule.id} className="flex items-start gap-2.5 px-4 py-2">
-                  <ShieldCheck size={14} className="mt-0.5 shrink-0 text-accent" />
+                  <ShieldCheck size={14} aria-hidden="true" className="mt-0.5 shrink-0 text-accent" />
                   <span className="text-sm leading-snug text-ink-200">{rule.text}</span>
                 </div>
               )}
@@ -144,7 +144,7 @@ function StreakStrip({ habits }) {
   return (
     <Card className="p-4">
       <div className="mb-4 flex items-center gap-2">
-        <Flame size={16} className={habits.streak > 0 ? 'text-accent' : 'text-ink-400'} />
+        <Flame size={16} aria-hidden="true" className={habits.streak > 0 ? 'text-accent' : 'text-ink-400'} />
         <span className="font-display text-lg font-semibold text-ink-50">{habits.streak}</span>
         <span className="text-sm text-ink-300">day streak</span>
         <span className="ml-auto text-xs text-ink-400">

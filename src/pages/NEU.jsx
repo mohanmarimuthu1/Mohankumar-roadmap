@@ -119,6 +119,7 @@ export default function NEU() {
                 </span>
                 <ChevronDown
                   size={16}
+                  aria-hidden="true"
                   className={`shrink-0 text-ink-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
                 />
               </button>

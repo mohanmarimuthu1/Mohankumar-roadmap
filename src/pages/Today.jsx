@@ -80,7 +80,7 @@ export default function Today() {
                   </p>
                   <p className="mt-0.5 text-xs text-ink-400">{phase.weeks}</p>
                 </div>
-                <ChevronRight size={16} className="mt-1 shrink-0 text-ink-400" />
+                <ChevronRight size={16} aria-hidden="true" className="mt-1 shrink-0 text-ink-400" />
               </div>
               <div className="mt-3.5 flex items-center gap-3">
                 <ProgressBar value={phaseStat?.ratio ?? 0} />
@@ -158,13 +158,13 @@ export default function Today() {
                     {item.source || item.category} · {formatRelative(item.published)}
                   </p>
                 </div>
-                <ArrowUpRight size={14} className="mt-0.5 shrink-0 text-ink-400" />
+                <ArrowUpRight size={14} aria-hidden="true" className="mt-0.5 shrink-0 text-ink-400" />
               </a>
             ))}
           </Card>
         ) : (
           <Card className="flex items-center gap-3 px-4 py-5">
-            <Radio size={16} className="shrink-0 text-ink-400" />
+            <Radio size={16} aria-hidden="true" className="shrink-0 text-ink-400" />
             <p className="text-sm leading-relaxed text-ink-300">
               No articles yet — hit refresh on the{' '}
               <Link to="/live" className="text-accent hover:underline">
