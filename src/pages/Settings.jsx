@@ -99,6 +99,8 @@ export default function Settings() {
             <img
               src={user.user_metadata.avatar_url}
               alt=""
+              width={40}
+              height={40}
               referrerPolicy="no-referrer"
               className="h-10 w-10 rounded-full border border-ink-600 object-cover"
             />
@@ -117,11 +119,11 @@ export default function Settings() {
         <SectionTitle>Appearance</SectionTitle>
         <Card className="p-4">
           <div className="flex flex-wrap items-center gap-3">
-            <Palette size={16} className="shrink-0 text-ink-400" />
+            <Palette size={16} aria-hidden="true" className="shrink-0 text-ink-400" />
             <div className="min-w-0 flex-1">
               <p className="text-sm text-ink-100">Theme</p>
               <p className="mt-0.5 text-xs leading-relaxed text-ink-400">
-                System follows your device&apos;s light/dark setting.
+                System follows your device’s light/dark setting.
               </p>
             </div>
             <ThemePicker />
@@ -134,7 +136,7 @@ export default function Settings() {
         <SectionTitle>Edit mode</SectionTitle>
         <Card className="p-4">
           <div className="flex items-center gap-3">
-            <Pencil size={16} className={editMode ? 'text-accent' : 'text-ink-400'} />
+            <Pencil size={16} aria-hidden="true" className={editMode ? 'text-accent' : 'text-ink-400'} />
             <div className="min-w-0 flex-1">
               <p className="text-sm text-ink-100">Enable editing</p>
               <p className="mt-0.5 text-xs leading-relaxed text-ink-400">
@@ -207,7 +209,7 @@ export default function Settings() {
         <SectionTitle>Session</SectionTitle>
         <Card className="p-4">
           <Button onClick={signOut} className="w-full">
-            <LogOut size={15} />
+            <LogOut size={15} aria-hidden="true" />
             Sign out
           </Button>
         </Card>
@@ -251,7 +253,7 @@ export default function Settings() {
 function Row({ icon: Icon, title, note, action }) {
   return (
     <div className="flex items-center gap-3 p-4">
-      <Icon size={16} className="shrink-0 text-ink-400" />
+      <Icon size={16} aria-hidden="true" className="shrink-0 text-ink-400" />
       <div className="min-w-0 flex-1">
         <p className="text-sm text-ink-100">{title}</p>
         <p className="mt-0.5 text-xs leading-relaxed text-ink-400">{note}</p>

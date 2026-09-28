@@ -46,7 +46,7 @@ export default function Auth() {
           </button>
         ) : (
           <div className="rounded-xl border border-ink-500 bg-ink-800 p-4 text-sm leading-relaxed text-ink-200">
-            <p className="mb-2 font-medium text-ink-50">Supabase isn&apos;t configured yet</p>
+            <p className="mb-2 font-medium text-ink-50">Supabase isn’t configured yet</p>
             <p className="text-ink-300">
               Copy <code className="text-accent">.env.example</code> to{' '}
               <code className="text-accent">.env.local</code>, add your project URL and anon key,

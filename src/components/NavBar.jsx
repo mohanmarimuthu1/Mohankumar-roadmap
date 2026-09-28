@@ -37,6 +37,8 @@ export default function NavBar() {
             <img
               src={user.user_metadata.avatar_url}
               alt=""
+              width={28}
+              height={28}
               referrerPolicy="no-referrer"
               className="ml-1 h-7 w-7 rounded-full border border-ink-600 object-cover"
             />
