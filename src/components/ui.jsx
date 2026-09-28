@@ -79,7 +79,7 @@ export function ErrorNote({ error, onRetry }) {
   if (!error) return null
   return (
     <div className="flex items-start gap-3 rounded-xl border border-ink-500 bg-ink-800 p-4">
-      <AlertTriangle size={16} className="mt-0.5 shrink-0 text-accent" />
+      <AlertTriangle size={16} aria-hidden="true" className="mt-0.5 shrink-0 text-accent" />
       <div className="flex-1 text-sm">
         <p className="text-ink-100">Could not load this.</p>
         <p className="mt-1 break-words text-xs text-ink-300">{error.message}</p>
@@ -136,6 +136,7 @@ export function Checkbox({ checked, onChange, label, sublabel, className = '' })
  * which iOS Safari renders inconsistently (often not at all) inside a PWA.
  */
 export function Combobox({
+  id,
   value,
   onChange,
   options,
@@ -185,6 +186,7 @@ export function Combobox({
   return (
     <div className="relative">
       <input
+        id={id}
         autoFocus={autoFocus}
         value={value}
         placeholder={placeholder}
@@ -298,9 +300,9 @@ export function Modal({ open, onClose, title, children, footer }) {
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="pb-safe shadow-soft relative w-full max-w-md rounded-t-2xl border border-ink-600 bg-ink-800 sm:rounded-2xl"
+        className="pb-safe shadow-soft relative flex max-h-[85vh] w-full max-w-md flex-col rounded-t-2xl border border-ink-600 bg-ink-800 sm:rounded-2xl"
       >
-        <div className="flex items-center justify-between border-b border-ink-600 px-5 py-3.5">
+        <div className="flex shrink-0 items-center justify-between border-b border-ink-600 px-5 py-3.5">
           <h3 className="font-display text-sm font-semibold text-ink-50">{title}</h3>
           <button
             onClick={onClose}
@@ -310,9 +312,9 @@ export function Modal({ open, onClose, title, children, footer }) {
             <X size={16} />
           </button>
         </div>
-        <div className="px-5 py-4">{children}</div>
+        <div className="overflow-y-auto overscroll-contain px-5 py-4">{children}</div>
         {footer ? (
-          <div className="flex justify-end gap-2 border-t border-ink-600 px-5 py-3.5">{footer}</div>
+          <div className="flex shrink-0 justify-end gap-2 border-t border-ink-600 px-5 py-3.5">{footer}</div>
         ) : null}
       </div>
     </div>
